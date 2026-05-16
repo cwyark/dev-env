@@ -1,0 +1,3 @@
+[flavor]
+dark = "catppuccin-mocha"  # Or "gruvbox-dark", "dracula", etc.
+light = "catppuccin-mocha"

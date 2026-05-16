@@ -1,0 +1,70 @@
+0000000000000000000000000000000000000000 d30b0309a99296df4430080d8c2765151b38e901 YuSheng <chester@cwyark.me> 1765726677 +0800	commit (initial): first commit
+d30b0309a99296df4430080d8c2765151b38e901 a974aaf120d7afc678fcff1511ad740087d23549 YuSheng <chester@cwyark.me> 1765727063 +0800	commit: remove lazygit
+a974aaf120d7afc678fcff1511ad740087d23549 fe24d25c00de3792bf0a2db7bb44e37473d93e80 YuSheng <chester@cwyark.me> 1765727659 +0800	commit: add a lazygit custom command to toggleterminal
+fe24d25c00de3792bf0a2db7bb44e37473d93e80 3ca42946df029e02d637629f4ba741f4dead57a7 YuSheng <chester@cwyark.me> 1765727881 +0800	commit: chang eshortkey
+3ca42946df029e02d637629f4ba741f4dead57a7 48909a137f6318c3198fe39b087706f5c80cbd7a YuSheng <chester@cwyark.me> 1765728865 +0800	commit: add lualine
+48909a137f6318c3198fe39b087706f5c80cbd7a 50402a88f66633eb916a07db8d29ee0ad9cdf428 YuSheng <chester@cwyark.me> 1765730518 +0800	commit: add fzf plugin
+50402a88f66633eb916a07db8d29ee0ad9cdf428 50402a88f66633eb916a07db8d29ee0ad9cdf428 YuSheng <chester@cwyark.me> 1765783107 +0800	reset: moving to HEAD
+50402a88f66633eb916a07db8d29ee0ad9cdf428 68a078cb2210d2c77b85cf67d4e51e85243a571f YuSheng <chester@cwyark.me> 1765783149 +0800	commit: add oil plugin and update some keymappingsa
+68a078cb2210d2c77b85cf67d4e51e85243a571f 50402a88f66633eb916a07db8d29ee0ad9cdf428 YuSheng <chester@cwyark.me> 1765783153 +0800	rebase (start): checkout 50402a88f66633eb916a07db8d29ee0ad9cdf428
+50402a88f66633eb916a07db8d29ee0ad9cdf428 68a078cb2210d2c77b85cf67d4e51e85243a571f YuSheng <chester@cwyark.me> 1765783153 +0800	rebase: fast-forward
+68a078cb2210d2c77b85cf67d4e51e85243a571f 68a078cb2210d2c77b85cf67d4e51e85243a571f YuSheng <chester@cwyark.me> 1765783156 +0800	rebase (abort): returning to refs/heads/master
+68a078cb2210d2c77b85cf67d4e51e85243a571f 516d574263fb4e0c812d48a55ec03247ba9bab5b YuSheng <chester@cwyark.me> 1765799180 +0800	commit: rename rg description
+516d574263fb4e0c812d48a55ec03247ba9bab5b 97d9694148f5d5001a68c61c67adbcf76b3e2804 YuSheng <chester@cwyark.me> 1765812285 +0800	commit: update nvim config
+97d9694148f5d5001a68c61c67adbcf76b3e2804 470577529456310ce2765a33e788eb563090198c YuSheng <chester@cwyark.me> 1765892714 +0800	commit: add remote-vim
+470577529456310ce2765a33e788eb563090198c 7a5f2be5ec0784c11262dc12e2da427128762c6c YuSheng <chester@cwyark.me> 1766036570 +0800	commit: add node installer and treesitter
+7a5f2be5ec0784c11262dc12e2da427128762c6c 8127ad3cea219381be8df739a9c228995ea1b1ce YuSheng <chester@cwyark.me> 1766036574 +0800	commit (amend): add node installer and treesitter
+8127ad3cea219381be8df739a9c228995ea1b1ce 8127ad3cea219381be8df739a9c228995ea1b1ce YuSheng <chester@cwyark.me> 1766039077 +0800	reset: moving to HEAD
+8127ad3cea219381be8df739a9c228995ea1b1ce 79ccb39e007d4f5a4ab8564b264dd12e0ca1b19e YuSheng <chester@cwyark.me> 1766039086 +0800	commit: add avante and mcphub
+79ccb39e007d4f5a4ab8564b264dd12e0ca1b19e ef1068727e4cf93079fcf63dbc339ea2160c08bb YuSheng <chester@cwyark.me> 1766041052 +0800	commit: add treesitter textobject
+ef1068727e4cf93079fcf63dbc339ea2160c08bb 0103000addf8c138f476eb12cf97a9c95014de2a YuSheng <chester@cwyark.me> 1766041535 +0800	commit (amend): add treesitter textobject
+0103000addf8c138f476eb12cf97a9c95014de2a 449921b1c9f37d87cdc070d88722262ae6924425 YuSheng <chester@cwyark.me> 1766059289 +0800	commit (amend): add treesitter textobject
+449921b1c9f37d87cdc070d88722262ae6924425 6b212cd0ccc165ed0d290f252a5b9e6c50047656 YuSheng <chester@cwyark.me> 1766059880 +0800	commit (amend): add treesitter textobject
+6b212cd0ccc165ed0d290f252a5b9e6c50047656 d22f6a56c496fa9b269ea532b618073d9da2e51f YuSheng <chester@cwyark.me> 1766059895 +0800	commit (amend): add treesitter textobject
+d22f6a56c496fa9b269ea532b618073d9da2e51f 060be5bee837d5d6bf6e74adb1968e82560de4e0 YuSheng <chester@cwyark.me> 1766060086 +0800	commit (amend): add treesitter textobject
+060be5bee837d5d6bf6e74adb1968e82560de4e0 722f08f2dccc220fba12031b3b58a0099ed98ce6 YuSheng <chester@cwyark.me> 1766062428 +0800	commit (amend): add treesitter textobject
+722f08f2dccc220fba12031b3b58a0099ed98ce6 5265c210b597f9e43fc8641504dc552b3a68f910 YuSheng <chester@cwyark.me> 1766149539 +0800	commit (amend): add treesitter textobject
+5265c210b597f9e43fc8641504dc552b3a68f910 a646ea901f93a8853269f38cc4edeca56756d8c4 YuSheng <chester@cwyark.me> 1766153591 +0800	commit (amend): add treesitter textobject
+a646ea901f93a8853269f38cc4edeca56756d8c4 877b985fd618ee7ee988ae62479f21caf0d1e031 YuSheng <chester@cwyark.me> 1766158281 +0800	commit (amend): add treesitter textobject
+877b985fd618ee7ee988ae62479f21caf0d1e031 8117cf028c4d8203c9329b71e8502359e76352d2 YuSheng <chester@cwyark.me> 1766323456 +0800	commit: add python's virtualenv selector
+8117cf028c4d8203c9329b71e8502359e76352d2 3dccf4897fd35ed0e171cee9fb0467299baa3758 YuSheng <chester@cwyark.me> 1766323737 +0800	commit (amend): add python's virtualenv selector
+3dccf4897fd35ed0e171cee9fb0467299baa3758 221297ee7c670db31d5e49b742ec39b7202b3f9c YuSheng <chester@cwyark.me> 1766469826 +0800	commit (amend): add python's virtualenv selector
+221297ee7c670db31d5e49b742ec39b7202b3f9c 221297ee7c670db31d5e49b742ec39b7202b3f9c YuSheng <chester@cwyark.me> 1768268114 +0800	reset: moving to HEAD
+221297ee7c670db31d5e49b742ec39b7202b3f9c 221297ee7c670db31d5e49b742ec39b7202b3f9c YuSheng <chester@cwyark.me> 1768268116 +0800	reset: moving to HEAD
+221297ee7c670db31d5e49b742ec39b7202b3f9c 413bd9293d9b28f7a9a323f50eaf2a7c573218f6 YuSheng <chester@cwyark.me> 1768268123 +0800	commit: update lsp configs
+413bd9293d9b28f7a9a323f50eaf2a7c573218f6 b425ec97b12148c8102540c33d0dc9dd76c3ae47 YuSheng <chester@cwyark.me> 1768269633 +0800	commit (amend): update lsp configs
+b425ec97b12148c8102540c33d0dc9dd76c3ae47 c67d9afcce44675b725af560c59be56433ea8a66 YuSheng <chester@cwyark.me> 1768269920 +0800	commit (amend): update lsp configs
+c67d9afcce44675b725af560c59be56433ea8a66 1e48db6a56ab7bb9a403fd07ca61425bfbbf87fe YuSheng <chester@cwyark.me> 1768444612 +0800	commit (amend): update lsp configs
+1e48db6a56ab7bb9a403fd07ca61425bfbbf87fe f47dba01465d54784b3e2228ee55b888ddae2942 YuSheng <chester@cwyark.me> 1768543504 +0800	commit (amend): update lsp configs
+f47dba01465d54784b3e2228ee55b888ddae2942 b7b8b2662c6f3d17bb0c9769066009b03e797ed4 YuSheng <chester@cwyark.me> 1768658918 +0800	commit: add leetcode plugin
+b7b8b2662c6f3d17bb0c9769066009b03e797ed4 b369085ac9df6d41226e44df2834dc35c4188e97 YuSheng <chester@cwyark.me> 1769171537 +0800	commit (amend): add leetcode plugin
+b369085ac9df6d41226e44df2834dc35c4188e97 fac949444e474a77ed6ba995c2acbfdefa7db0ff YuSheng <chester@cwyark.me> 1770713142 +0800	commit (amend): add leetcode plugin
+fac949444e474a77ed6ba995c2acbfdefa7db0ff 2bca103eb4b0dded7b9a7a742415bab6baf1113e YuSheng <chester@cwyark.me> 1774316509 +0800	commit: update key bindings
+2bca103eb4b0dded7b9a7a742415bab6baf1113e 2bca103eb4b0dded7b9a7a742415bab6baf1113e YuSheng <chester@cwyark.me> 1774316994 +0800	reset: moving to HEAD
+2bca103eb4b0dded7b9a7a742415bab6baf1113e a62447edd53bce21a1f8ea4faabc9b5cfcb942bf YuSheng <chester@cwyark.me> 1774316997 +0800	commit (amend): update key bindings
+a62447edd53bce21a1f8ea4faabc9b5cfcb942bf a62447edd53bce21a1f8ea4faabc9b5cfcb942bf YuSheng <chester@cwyark.me> 1775013060 +0800	reset: moving to HEAD
+a62447edd53bce21a1f8ea4faabc9b5cfcb942bf c95351b9427e642eccca47d9e89fb60c7734566c YuSheng <chester@cwyark.me> 1775013067 +0800	commit (amend): update key bindings
+c95351b9427e642eccca47d9e89fb60c7734566c 16ec387823721b145e346200e8ff1cfd618d3f57 YuSheng <chester@cwyark.me> 1775057635 +0800	commit (amend): update key bindings
+16ec387823721b145e346200e8ff1cfd618d3f57 a30f006fa7e0b65a40f172a4bade3c0480261c6d YuSheng <chester@cwyark.me> 1775060703 +0800	commit (amend): update key bindings
+a30f006fa7e0b65a40f172a4bade3c0480261c6d 7938f6e52e0efe0f2cc004505d9ff5e0e2b00478 YuSheng <chester@cwyark.me> 1775111168 +0800	commit (amend): update key bindings
+7938f6e52e0efe0f2cc004505d9ff5e0e2b00478 00d9b55d41278fdb091a490d52085307e0166a42 YuSheng <chester@cwyark.me> 1776608900 +0800	commit (amend): update key bindings
+00d9b55d41278fdb091a490d52085307e0166a42 8f3c8bcbf1028c8cfa60659211b61fcfcc4e7c7a YuSheng <chester@cwyark.me> 1776609308 +0800	commit (amend): update key bindings
+8f3c8bcbf1028c8cfa60659211b61fcfcc4e7c7a c67a0f8c2d7f42182c3fa2b5a54e3f9912080736 YuSheng <chester@cwyark.me> 1777093826 +0800	commit: change neovim cwd when yazi close
+c67a0f8c2d7f42182c3fa2b5a54e3f9912080736 7101691cfe3074a28e50c524f876fac8fa3e37eb YuSheng <chester@cwyark.me> 1777097891 +0800	commit: improve some configs
+7101691cfe3074a28e50c524f876fac8fa3e37eb a4c5180711328c7275d7e573c2bb518dab8d8d24 YuSheng <chester@cwyark.me> 1777097895 +0800	commit (amend): improve some configs
+a4c5180711328c7275d7e573c2bb518dab8d8d24 8bccffb986e44531ee166d26eb524f5653cbdac9 YuSheng <chester@cwyark.me> 1777098296 +0800	commit (amend): improve some configs
+8bccffb986e44531ee166d26eb524f5653cbdac9 e97309ba6f5e42390cf8ec4ead354eea84f9acd1 YuSheng <chester@cwyark.me> 1777098648 +0800	commit (amend): improve some configs
+e97309ba6f5e42390cf8ec4ead354eea84f9acd1 6540223afb75795ef29baa500aa82aa66e42e6f5 YuSheng <chester@cwyark.me> 1777108144 +0800	commit (amend): improve some configs
+6540223afb75795ef29baa500aa82aa66e42e6f5 14d04c7d6d3302a9a8847d174890450e6607b6b0 YuSheng <chester@cwyark.me> 1777110070 +0800	commit (amend): improve some configs
+14d04c7d6d3302a9a8847d174890450e6607b6b0 e815e817687e7688ebf76f7ac8df82b7d88aa2e3 YuSheng <chester@cwyark.me> 1777122011 +0800	commit (amend): improve some configs
+e815e817687e7688ebf76f7ac8df82b7d88aa2e3 693226779507524be57109d2cb6d6409d0675c1a YuSheng <chester@cwyark.me> 1777336413 +0800	commit (amend): improve some configs
+693226779507524be57109d2cb6d6409d0675c1a 9d87b7a65faabcc860c7fcf98000788a571d1a89 YuSheng <chester@cwyark.me> 1777342699 +0800	commit (amend): improve some configs
+9d87b7a65faabcc860c7fcf98000788a571d1a89 9d87b7a65faabcc860c7fcf98000788a571d1a89 YuSheng <chester@cwyark.me> 1778551782 +0800	checkout: moving from master to code-companion
+9d87b7a65faabcc860c7fcf98000788a571d1a89 d1882d4b85060906fcf620538e8cf2e206741ea4 YuSheng <chester@cwyark.me> 1778552244 +0800	commit: add codecompanion.nvim plugin
+d1882d4b85060906fcf620538e8cf2e206741ea4 d1882d4b85060906fcf620538e8cf2e206741ea4 YuSheng <chester@cwyark.me> 1778553366 +0800	reset: moving to HEAD
+d1882d4b85060906fcf620538e8cf2e206741ea4 bde8bb13b469e1ab38ade5f202283fbd3e107303 YuSheng <chester@cwyark.me> 1778553376 +0800	commit: update code companion plugin
+bde8bb13b469e1ab38ade5f202283fbd3e107303 bde8bb13b469e1ab38ade5f202283fbd3e107303 YuSheng <chester@cwyark.me> 1778653626 +0800	reset: moving to HEAD
+bde8bb13b469e1ab38ade5f202283fbd3e107303 9aaf58672b8527082a8c9b8f70847f6cb85dc2f7 YuSheng <chester@cwyark.me> 1778653635 +0800	commit: update code companion plugin
+9aaf58672b8527082a8c9b8f70847f6cb85dc2f7 cf3ad3764f8ce50390e3b6f3395e75b6da95cf3f YuSheng <chester@cwyark.me> 1778826382 +0800	commit: refactor overseer and snpirun configs
+cf3ad3764f8ce50390e3b6f3395e75b6da95cf3f 9d87b7a65faabcc860c7fcf98000788a571d1a89 YuSheng <chester@cwyark.me> 1778826385 +0800	checkout: moving from code-companion to master
+9d87b7a65faabcc860c7fcf98000788a571d1a89 cf3ad3764f8ce50390e3b6f3395e75b6da95cf3f YuSheng <chester@cwyark.me> 1778826389 +0800	merge code-companion: Fast-forward

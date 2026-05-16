@@ -1,0 +1,14 @@
+[[plugin.deps]]
+use = "KKV9/compress"
+rev = "cb6e8ec"
+hash = "424ada4807b20ccd4fc85d1d7c26d1e4"
+
+[[plugin.deps]]
+use = "uhs-robert/sshfs"
+rev = "4070c8e"
+hash = "a4cd81fe60c350c3f0fde9957f4a4bb9"
+
+[[flavor.deps]]
+use = "yazi-rs/flavors:catppuccin-mocha"
+rev = "9e053d0"
+hash = "8eabb4e88096f10905a6df62cfaadbf4"
