@@ -23,7 +23,6 @@ require('plugins.specs.editor.tokionight')
 
 require('plugins.specs.dev.nvim-dap')
 require('plugins.specs.dev.overseer')
-require('plugins.specs.dev.remote-nvim')
 require('plugins.specs.dev.sniprun')
 require('plugins.specs.dev.venv-selector')
 

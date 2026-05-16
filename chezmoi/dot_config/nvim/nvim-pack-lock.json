@@ -130,11 +130,6 @@
       "src": "https://github.com/nvim-lua/plenary.nvim",
       "version": "'master'"
     },
-    "remote-nvim": {
-      "rev": "9992c2fb8bf4f11aca2c8be8db286b506f92efcb",
-      "src": "https://github.com/amitds1997/remote-nvim.nvim",
-      "version": "'main'"
-    },
     "render-markdown": {
       "rev": "629eb9533ec989d9d5c6cab8f3ad5372422c24e0",
       "src": "https://github.com/MeanderingProgrammer/render-markdown.nvim",
