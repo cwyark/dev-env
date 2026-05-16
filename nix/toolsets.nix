@@ -3,9 +3,11 @@
 let
   optionalPackage = name:
     if builtins.hasAttr name pkgs then [ (builtins.getAttr name pkgs) ] else [ ];
-in
-{
-  core = with pkgs; [
+
+  darwinOptionalPackage = name:
+    if pkgs.stdenv.isDarwin && builtins.hasAttr name pkgs then [ (builtins.getAttr name pkgs) ] else [ ];
+
+  coreTools = with pkgs; [
     neovim
     yazi
     zellij
@@ -26,6 +28,9 @@ in
     uv
     zstd
   ]);
+in
+{
+  core = coreTools ++ darwinOptionalPackage "lima";
 
   nvim = with pkgs; [
     lua-language-server
