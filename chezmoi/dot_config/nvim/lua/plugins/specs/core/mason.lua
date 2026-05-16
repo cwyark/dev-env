@@ -4,15 +4,4 @@ vim.pack.add {
 }
 
 require('mason').setup()
-require('mason-lspconfig').setup({
-  ensure_installed = {
-    "lua_ls",        -- lua
-    "rust_analyzer", -- rust
-    "clangd",        -- c/c++
-    "pyright",       -- python
-    "ruff",          -- python
-    "neocmake",      -- cmake
-    "biome",         -- json, javascript
-    "taplo"          -- toml
-  },
-})
+require('mason-lspconfig').setup()

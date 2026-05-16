@@ -33,7 +33,6 @@ wk.add({
 })
 
 vim.keymap.set('n', "<leader>pu", "<cmd>lua vim.pack.update()<cr>", { desc = "Update packages" })
-vim.keymap.set('n', "<leader>pt", "<cmd>TSInstallCLI<cr>", { desc = "Install Treesitter CLI" })
 
 vim.keymap.set('n', "<C-h>", "<cmd>wincmd h<cr>")
 vim.keymap.set('n', "<C-j>", "<cmd>wincmd j<cr>")

@@ -35,10 +35,13 @@
             cp -R ${./lib} root/lib
             cp -R ${./scripts} root/scripts
             cp -R ${./chezmoi} root/chezmoi
+            cp ${./runtime/etc/env.sh} root/etc/env.sh
+            cp ${./runtime/etc/zshrc} root/etc/zshrc
             cp -R ${./bin} root/share/dev-env/bin-src
             cp -R ${./lib} root/share/dev-env/lib
             cp -R ${./scripts} root/share/dev-env/scripts
             cp -R ${./chezmoi} root/share/dev-env/chezmoi
+            cp -R ${./runtime} root/share/dev-env/runtime
             chmod +x root/bin/* root/scripts/* root/share/dev-env/scripts/* || true
             tar -C root -czf "$out/dev-env-${system}.tar.gz" .
           '';

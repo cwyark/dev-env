@@ -14,10 +14,36 @@ cd "$repo_root"
 # own cache in the repo so bundle builds do not depend on that runtime path.
 export XDG_CACHE_HOME="$repo_root/.cache"
 
+if git -C "$repo_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+  version="$(git -C "$repo_root" rev-parse --short HEAD)"
+  if ! git -C "$repo_root" diff --quiet --ignore-submodules HEAD --; then
+    version="$version-dirty"
+  fi
+else
+  version="unknown"
+fi
+
+version_file="$repo_root/VERSION"
+had_version=0
+old_version=""
+if [ -f "$version_file" ]; then
+  had_version=1
+  old_version="$(cat "$version_file")"
+fi
+printf '%s\n' "$version" > "$version_file"
+cleanup_version_file() {
+  if [ "$had_version" = 1 ]; then
+    printf '%s\n' "$old_version" > "$version_file"
+  else
+    rm -f "$version_file"
+  fi
+}
+trap cleanup_version_file EXIT HUP INT TERM
+
 mkdir -p dist
 nix build ".#packages.$system.bundle" -o "result-$system-bundle"
 tmp="dist/dev-env-$system.tar.gz.$$"
 cp "result-$system-bundle/dev-env-$system.tar.gz" "$tmp"
 chmod 0644 "$tmp"
 mv -f "$tmp" "dist/dev-env-$system.tar.gz"
-printf 'wrote %s\n' "dist/dev-env-$system.tar.gz"
+printf 'wrote %s (%s)\n' "dist/dev-env-$system.tar.gz" "$version"

@@ -5,11 +5,6 @@ vim.pack.add({
 })
 
 require('mason-nvim-dap').setup({
-  ensure_installed = {
-    "python",
-    "codelldb",
-    "bash",
-  },
   handlers = {
     function(config)
       require('mason-nvim-dap').default_setup(config)

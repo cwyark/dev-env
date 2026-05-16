@@ -11,12 +11,21 @@ fi
 DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
 staging="${TMPDIR:-/tmp}/dev-env.staging.$$"
 previous="$DEV_ENV_HOME.previous.$(date +%Y%m%d%H%M%S)"
+parent="$(dirname "$DEV_ENV_HOME")"
 
 rm -rf "$staging"
 mkdir -p "$staging"
 tar -xzf "$archive" -C "$staging"
 
-mkdir -p "$(dirname "$DEV_ENV_HOME")"
+if ! mkdir -p "$parent"; then
+  printf 'error: cannot create install parent: %s\n' "$parent" >&2
+  exit 1
+fi
+if [ -e "$DEV_ENV_HOME" ] && [ ! -w "$DEV_ENV_HOME" ]; then
+  printf 'error: install target is not writable: %s\n' "$DEV_ENV_HOME" >&2
+  printf 'hint: fix ownership or remove the existing directory, then retry\n' >&2
+  exit 1
+fi
 if [ -d "$DEV_ENV_HOME" ]; then
   mv "$DEV_ENV_HOME" "$previous"
 fi

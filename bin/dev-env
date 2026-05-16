@@ -19,6 +19,7 @@ usage() {
 Usage: dev-env <command>
 
 Commands:
+  version        Print dev-env version
   doctor         Check expected tools
   platform       Print detected platform
   shell          Start an activated shell
@@ -42,8 +43,33 @@ doctor() {
   return "$missing"
 }
 
+version() {
+  version_file="$REPO_ROOT/VERSION"
+
+  if [ -d "$REPO_ROOT/.git" ] && command -v git >/dev/null 2>&1; then
+    hash="$(git -C "$REPO_ROOT" rev-parse --short HEAD 2>/dev/null || true)"
+    if [ -n "$hash" ]; then
+      if ! git -C "$REPO_ROOT" diff --quiet --ignore-submodules HEAD -- 2>/dev/null; then
+        hash="$hash-dirty"
+      fi
+      printf 'dev-env %s\n' "$hash"
+      return 0
+    fi
+  fi
+
+  if [ -r "$version_file" ]; then
+    printf 'dev-env %s\n' "$(sed -n '1p' "$version_file")"
+    return 0
+  fi
+
+  printf 'dev-env unknown\n'
+}
+
 cmd="${1:-}"
 case "$cmd" in
+  version|--version|-V)
+    version
+    ;;
   doctor)
     doctor
     ;;

@@ -10,6 +10,9 @@ in
     yazi
     zellij
     chezmoi
+  ]
+  ++ optionalPackage "codex"
+  ++ (with pkgs; [
     git
     ripgrep
     fd
@@ -22,7 +25,7 @@ in
     openssh
     uv
     zstd
-  ];
+  ]);
 
   nvim = with pkgs; [
     lua-language-server

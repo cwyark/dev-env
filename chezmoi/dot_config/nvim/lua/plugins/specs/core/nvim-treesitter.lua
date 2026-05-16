@@ -3,19 +3,6 @@ vim.pack.add({
   { src = "https://github.com/nvim-treesitter/nvim-treesitter-textobjects", name = "nvim-treesitter-textobjects", version = "main" }
 })
 
-
-vim.api.nvim_create_user_command("TSInstallCLI", function()
-  vim.system({ "npm", "install", "-g", "tree-sitter-cli" }, { text = true }, function(res)
-    vim.schedule(function()
-      if res.code == 0 then
-        vim.notify("tree-sitter-cli installed (Neovim-local npm)", vim.log.levels.INFO)
-      else
-        vim.notify("TS CLI install failed: " .. (res.stderr or ""), vim.log.levels.ERROR)
-      end
-    end)
-  end)
-end, {})
-
 require('nvim-treesitter-textobjects').setup({
   select = {
     -- Automatically jump forward to textobj, similar to targets.vim
@@ -47,27 +34,6 @@ require('nvim-treesitter-textobjects').setup({
     -- whether to set jumps in the jumplist
     set_jumps = true,
   },
-})
-
-
-require('nvim-treesitter').install({
-  'c',
-  'cpp',
-  'css',
-  'bash',
-  'lua',
-  'cmake',
-  'dockerfile',
-  'python',
-  'rust',
-  'markdown',
-  'javascript',
-  'typescript',
-  'zig',
-  'xml',
-  'yaml',
-  'toml',
-  'regex'
 })
 
 -- text object select module
