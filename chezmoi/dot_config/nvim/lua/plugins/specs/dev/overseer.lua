@@ -13,7 +13,7 @@ require('overseer').setup({
 local wk = require('which-key')
 
 wk.add({
-  { '<leader>t', group = "Task", icon = "" },
-  { '<leader>tt', "<cmd>OverseerToggle<cr>", desc = "Task: Toggle Window", mode = "n" },
-  { '<leader>tr', "<cmd>OverseerRun<cr>", desc = "Task: Select to Execute", mode = "n" },
+  { '<leader>r', group = "Task", icon = "" },
+  { '<leader>rt', "<cmd>OverseerToggle<cr>", desc = "Task: Toggle Window", mode = "n" },
+  { '<leader>rr', "<cmd>OverseerRun<cr>", desc = "Task: Select to Execute", mode = "n" },
 })

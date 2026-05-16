@@ -27,24 +27,24 @@ local wk = require('which-key')
 
 wk.add({
   {
-    '<leader>T',
+    '<leader>t',
     group = "Terminal",
     icon = ""
   },
   {
-    '<leader>Tt',
+    '<leader>tt',
     "<cmd>ToggleTermToggleAll<cr>",
     desc = 'Toggle all terminals',
     mode = 'n',
   },
   {
-    '<leader>Tf',
+    '<leader>tf',
     "<cmd>ToggleTerm direction=float<cr>",
     desc = "Toggle a float terminal",
     mode = "n"
   },
   {
-    '<leader>Th',
+    '<leader>th',
     "<cmd>ToggleTerm size=10 direction=horizontal<cr>",
     desc = "Split terminal",
     mode = "n"
