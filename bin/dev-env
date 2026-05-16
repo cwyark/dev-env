@@ -1,0 +1,79 @@
+#!/usr/bin/env sh
+
+set -eu
+
+SELF_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
+
+# shellcheck source=../lib/platform.sh
+. "$REPO_ROOT/lib/platform.sh"
+
+DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
+export DEV_ENV_HOME
+export PATH="$DEV_ENV_HOME/bin:$PATH"
+export XDG_DATA_HOME="${XDG_DATA_HOME:-$DEV_ENV_HOME/share}"
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$DEV_ENV_HOME/cache}"
+
+usage() {
+  cat <<'EOF'
+Usage: dev-env <command>
+
+Commands:
+  doctor         Check expected tools
+  platform       Print detected platform
+  shell          Start an activated shell
+  zellij         Start zellij in the activated environment
+  nvim [args...] Start neovim in the activated environment
+  yazi [args...] Start yazi in the activated environment
+  chezmoi-apply  Apply chezmoi source from this repo
+EOF
+}
+
+doctor() {
+  missing=0
+  for cmd in nvim yazi zellij chezmoi git rg fd fzf lazygit; do
+    if command -v "$cmd" >/dev/null 2>&1; then
+      printf 'ok      %s -> %s\n' "$cmd" "$(command -v "$cmd")"
+    else
+      printf 'missing %s\n' "$cmd"
+      missing=1
+    fi
+  done
+  return "$missing"
+}
+
+cmd="${1:-}"
+case "$cmd" in
+  doctor)
+    doctor
+    ;;
+  platform)
+    dev_env_platform
+    ;;
+  shell)
+    cd "${DEV_ENV_WORKDIR:-$PWD}"
+    exec "${SHELL:-/bin/sh}" -l
+    ;;
+  zellij)
+    exec zellij
+    ;;
+  nvim)
+    shift
+    exec nvim "$@"
+    ;;
+  yazi)
+    shift
+    exec yazi "$@"
+    ;;
+  chezmoi-apply)
+    exec chezmoi --source "$REPO_ROOT/chezmoi" apply
+    ;;
+  ""|-h|--help|help)
+    usage
+    ;;
+  *)
+    printf 'unknown command: %s\n\n' "$cmd" >&2
+    usage >&2
+    exit 2
+    ;;
+esac

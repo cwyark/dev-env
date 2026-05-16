@@ -1,0 +1,5 @@
+result
+result-*
+dist/
+.direnv/
+.DS_Store

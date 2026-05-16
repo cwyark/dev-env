@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+set -eu
+
+system="${1:-}"
+if [ -z "$system" ]; then
+  system="$(nix eval --raw --impure --expr 'builtins.currentSystem')"
+fi
+
+mkdir -p dist
+nix build ".#packages.$system.bundle" -o "result-$system-bundle"
+cp "result-$system-bundle/dev-env-$system.tar.gz" "dist/dev-env-$system.tar.gz"
+printf 'wrote %s\n' "dist/dev-env-$system.tar.gz"

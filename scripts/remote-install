@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+set -eu
+
+archive="${1:-}"
+if [ -z "$archive" ]; then
+  printf 'usage: remote-install <archive.tar.gz>\n' >&2
+  exit 2
+fi
+
+DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
+staging="$DEV_ENV_HOME.staging.$$"
+
+rm -rf "$staging"
+mkdir -p "$staging"
+tar -xzf "$archive" -C "$staging"
+
+mkdir -p "$(dirname "$DEV_ENV_HOME")"
+rm -rf "$DEV_ENV_HOME.previous"
+if [ -d "$DEV_ENV_HOME" ]; then
+  mv "$DEV_ENV_HOME" "$DEV_ENV_HOME.previous"
+fi
+mv "$staging" "$DEV_ENV_HOME"
+rm -rf "$DEV_ENV_HOME.previous"
+
+chmod +x "$DEV_ENV_HOME/bin/"* 2>/dev/null || true
+printf 'installed dev-env to %s\n' "$DEV_ENV_HOME"

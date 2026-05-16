@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+
+set -eu
+
+SELF_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
+
+usage() {
+  cat <<'EOF'
+Usage: dev-ssh <ssh-target> [remote-command...]
+
+Deploy a matching dev-env bundle to the remote host and enter the environment.
+EOF
+}
+
+target="${1:-}"
+if [ -z "$target" ] || [ "$target" = "-h" ] || [ "$target" = "--help" ]; then
+  usage
+  exit 0
+fi
+shift
+
+remote_platform="$(
+  ssh "$target" 'os=$(uname -s | tr "[:upper:]" "[:lower:]"); arch=$(uname -m); case "$os:$arch" in linux:x86_64|linux:amd64) echo x86_64-linux ;; linux:aarch64|linux:arm64) echo aarch64-linux ;; *) echo unsupported-$os-$arch; exit 1 ;; esac'
+)"
+
+bundle="$REPO_ROOT/dist/dev-env-$remote_platform.tar.gz"
+if [ ! -f "$bundle" ]; then
+  printf 'missing bundle: %s\n' "$bundle" >&2
+  printf 'build it with: scripts/build-bundle %s\n' "$remote_platform" >&2
+  exit 1
+fi
+
+remote_tmp=".dev-env-upload-$$"
+ssh "$target" "mkdir -p '$remote_tmp'"
+scp "$bundle" "$target:$remote_tmp/dev-env.tar.gz"
+scp "$REPO_ROOT/scripts/remote-install" "$target:$remote_tmp/remote-install"
+ssh "$target" "sh '$remote_tmp/remote-install' '$remote_tmp/dev-env.tar.gz'"
+ssh "$target" "rm -rf '$remote_tmp'"
+
+if [ "$#" -gt 0 ]; then
+  ssh -t "$target" "DEV_ENV_HOME=\"\$HOME/.local/share/dev-env\"; export DEV_ENV_HOME; PATH=\"\$DEV_ENV_HOME/bin:\$PATH\"; export PATH; cd; exec sh -lc '$*'"
+else
+  ssh -t "$target" "\$HOME/.local/share/dev-env/bin/dev-env shell"
+fi
