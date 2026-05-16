@@ -2,4 +2,5 @@ result
 result-*
 dist/
 .direnv/
+.cache/
 .DS_Store

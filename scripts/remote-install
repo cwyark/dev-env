@@ -9,19 +9,23 @@ if [ -z "$archive" ]; then
 fi
 
 DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
-staging="$DEV_ENV_HOME.staging.$$"
+staging="${TMPDIR:-/tmp}/dev-env.staging.$$"
+previous="$DEV_ENV_HOME.previous.$(date +%Y%m%d%H%M%S)"
 
 rm -rf "$staging"
 mkdir -p "$staging"
 tar -xzf "$archive" -C "$staging"
 
 mkdir -p "$(dirname "$DEV_ENV_HOME")"
-rm -rf "$DEV_ENV_HOME.previous"
 if [ -d "$DEV_ENV_HOME" ]; then
-  mv "$DEV_ENV_HOME" "$DEV_ENV_HOME.previous"
+  mv "$DEV_ENV_HOME" "$previous"
 fi
 mv "$staging" "$DEV_ENV_HOME"
-rm -rf "$DEV_ENV_HOME.previous"
+if [ -d "$previous" ]; then
+  if ! rm -rf "$previous"; then
+    printf 'warning: installed dev-env, but failed to remove backup: %s\n' "$previous" >&2
+  fi
+fi
 
 chmod +x "$DEV_ENV_HOME/bin/"* 2>/dev/null || true
 printf 'installed dev-env to %s\n' "$DEV_ENV_HOME"

@@ -7,7 +7,17 @@ if [ -z "$system" ]; then
   system="$(nix eval --raw --impure --expr 'builtins.currentSystem')"
 fi
 
+repo_root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
+cd "$repo_root"
+
+# `dev-env shell` points XDG_CACHE_HOME at the portable runtime. Keep Nix's
+# own cache in the repo so bundle builds do not depend on that runtime path.
+export XDG_CACHE_HOME="$repo_root/.cache"
+
 mkdir -p dist
 nix build ".#packages.$system.bundle" -o "result-$system-bundle"
-cp "result-$system-bundle/dev-env-$system.tar.gz" "dist/dev-env-$system.tar.gz"
+tmp="dist/dev-env-$system.tar.gz.$$"
+cp "result-$system-bundle/dev-env-$system.tar.gz" "$tmp"
+chmod 0644 "$tmp"
+mv -f "$tmp" "dist/dev-env-$system.tar.gz"
 printf 'wrote %s\n' "dist/dev-env-$system.tar.gz"
