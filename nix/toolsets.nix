@@ -14,11 +14,13 @@ in
     ripgrep
     fd
     fzf
+    fnm
     lazygit
     jq
     curl
     rsync
     openssh
+    uv
     zstd
   ];
 

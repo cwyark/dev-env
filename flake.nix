@@ -49,6 +49,19 @@
           shellHook = ''
             export DEV_ENV_REPO="$PWD"
             export DEV_ENV_HOME="''${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
+
+            if [ -z "''${DEV_ENV_NIX_SHELL_ACTIVE:-}" ]; then
+              export DEV_ENV_NIX_SHELL_ACTIVE=1
+              if [ "''${DEV_ENV_QUIET:-0}" != "1" ]; then
+                printf 'dev-env: entered nix shell (%s)\n' "${system}"
+              fi
+              dev_env_exit_hook() {
+                if [ "''${DEV_ENV_QUIET:-0}" != "1" ]; then
+                  printf 'dev-env: exited nix shell (%s)\n' "${system}"
+                fi
+              }
+              trap dev_env_exit_hook EXIT
+            fi
           '';
         };
 

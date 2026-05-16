@@ -31,7 +31,7 @@ EOF
 
 doctor() {
   missing=0
-  for cmd in nvim yazi zellij chezmoi git rg fd fzf lazygit; do
+  for cmd in nvim yazi zellij chezmoi git rg fd fzf fnm lazygit uv; do
     if command -v "$cmd" >/dev/null 2>&1; then
       printf 'ok      %s -> %s\n' "$cmd" "$(command -v "$cmd")"
     else
@@ -52,7 +52,18 @@ case "$cmd" in
     ;;
   shell)
     cd "${DEV_ENV_WORKDIR:-$PWD}"
-    exec "${SHELL:-/bin/sh}" -l
+    shell="${SHELL:-/bin/sh}"
+    if [ "${DEV_ENV_QUIET:-0}" != "1" ]; then
+      printf 'dev-env: entered shell (%s)\n' "$(dev_env_platform)"
+    fi
+    set +e
+    "$shell" -l
+    status=$?
+    set -e
+    if [ "${DEV_ENV_QUIET:-0}" != "1" ]; then
+      printf 'dev-env: exited shell (%s, status %s)\n' "$(dev_env_platform)" "$status"
+    fi
+    exit "$status"
     ;;
   zellij)
     exec zellij
