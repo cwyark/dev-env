@@ -29,14 +29,13 @@
           dontUnpack = true;
           installPhase = ''
             mkdir -p "$out"
-            mkdir -p root/bin root/etc root/share/dev-env
+            mkdir -p root/bin root/etc/fish root/share/dev-env
             cp -R ${runtime}/bin root/
             cp -R ${./bin}/* root/bin/
             cp -R ${./lib} root/lib
             cp -R ${./scripts} root/scripts
             cp -R ${./chezmoi} root/chezmoi
-            cp ${./runtime/etc/env.sh} root/etc/env.sh
-            cp ${./runtime/etc/zshrc} root/etc/zshrc
+            cp ${./runtime/etc/fish/config.fish} root/etc/fish/config.fish
             cp -R ${./bin} root/share/dev-env/bin-src
             cp -R ${./lib} root/share/dev-env/lib
             cp -R ${./scripts} root/share/dev-env/scripts

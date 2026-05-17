@@ -12,10 +12,14 @@ The design intentionally separates three concerns:
 The remote-host goal is: no `apt`, no `yum`, no `brew`, no root. A remote host
 should only need SSH, a POSIX shell, and a writable home or temp directory.
 
+`bin/dev-env shell` now enters a bundled `fish` shell inside the isolated
+environment. The repo no longer ships bash or zsh startup configs.
+
 ## Essential Tools
 
 The first-class tools are:
 
+- `fish`
 - `neovim`
 - `yazi`
 - `zellij`

@@ -15,8 +15,7 @@ and which files need templates.
 Recommended first imports:
 
 ```sh
-chezmoi --source ./chezmoi add ~/.zshenv
-chezmoi --source ./chezmoi add ~/.zshrc
+chezmoi --source ./chezmoi add ~/.config/fish/conf.d/dev-env.fish
 chezmoi --source ./chezmoi add ~/.config/zellij
 chezmoi --source ./chezmoi add ~/.config/yazi
 chezmoi --source ./chezmoi add ~/.config/lazygit

@@ -47,6 +47,10 @@ The scaffold keeps `XDG_CONFIG_HOME` as the normal `~/.config` by default so
 chezmoi can manage normal application locations. This can be switched later to a
 fully private config root if you want zero dotfile writes on remotes.
 
+The `dev-env shell` entrypoint is fish-first and should launch the bundled fish
+runtime with its own config from `etc/fish/config.fish`. The repo no longer
+ships bash or zsh startup files.
+
 ### 3. chezmoi source state
 
 chezmoi owns dotfiles and templates. It should not be the package manager.

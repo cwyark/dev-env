@@ -22,7 +22,7 @@ Commands:
   version        Print dev-env version
   doctor         Check expected tools
   platform       Print detected platform
-  shell          Start an activated shell
+  shell          Start the isolated fish shell
   zellij         Start zellij in the activated environment
   nvim [args...] Start neovim in the activated environment
   yazi [args...] Start yazi in the activated environment
@@ -32,7 +32,7 @@ EOF
 
 doctor() {
   missing=0
-  for cmd in nvim yazi zellij chezmoi git rg fd fzf fnm lazygit uv; do
+  for cmd in fish nvim yazi zellij chezmoi git rg fd fzf fnm lazygit uv; do
     if command -v "$cmd" >/dev/null 2>&1; then
       printf 'ok      %s -> %s\n' "$cmd" "$(command -v "$cmd")"
     else
@@ -78,16 +78,28 @@ case "$cmd" in
     ;;
   shell)
     cd "${DEV_ENV_WORKDIR:-$PWD}"
-    shell="${SHELL:-/bin/sh}"
+    shell="${DEV_ENV_FISH:-}"
+    if [ -z "$shell" ]; then
+      shell="$(command -v fish 2>/dev/null || true)"
+    fi
+    if [ -n "$shell" ] && [ ! -x "$shell" ]; then
+      shell=""
+    fi
+    if [ -z "$shell" ]; then
+      printf 'dev-env: no usable fish shell found\n' >&2
+      exit 1
+    fi
+    export SHELL="$shell"
+    export FISH_INIT_SCRIPT="$DEV_ENV_HOME/etc/fish/config.fish"
     if [ "${DEV_ENV_QUIET:-0}" != "1" ]; then
-      printf 'dev-env: entered shell (%s)\n' "$(dev_env_platform)"
+      printf 'dev-env: entered fish shell (%s)\n' "$(dev_env_platform)"
     fi
     set +e
-    "$shell" -l
+    "$shell" --login --no-config -C 'source $FISH_INIT_SCRIPT'
     status=$?
     set -e
     if [ "${DEV_ENV_QUIET:-0}" != "1" ]; then
-      printf 'dev-env: exited shell (%s, status %s)\n' "$(dev_env_platform)" "$status"
+      printf 'dev-env: exited fish shell (%s, status %s)\n' "$(dev_env_platform)" "$status"
     fi
     exit "$status"
     ;;

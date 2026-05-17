@@ -11,6 +11,7 @@ let
     neovim
     yazi
     zellij
+    fish
     chezmoi
   ]
   ++ optionalPackage "codex"

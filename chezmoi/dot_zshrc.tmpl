@@ -1,7 +1,0 @@
-export DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
-
-if [ -r "$DEV_ENV_HOME/etc/zshrc" ]; then
-  source "$DEV_ENV_HOME/etc/zshrc"
-elif [ -r "$HOME/.config/dev-env/zshrc" ]; then
-  source "$HOME/.config/dev-env/zshrc"
-fi
