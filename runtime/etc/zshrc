@@ -15,6 +15,10 @@ if ! (( $+functions[compdef] )); then
   compinit -d "${ZDOTDIR:-$HOME}/.zcompdump-${HOST%%.*}-${ZSH_VERSION}"
 fi
 
+if command -v zellij >/dev/null 2>&1; then
+  eval "$(zellij setup --generate-completion zsh)"
+fi
+
 if command -v uv >/dev/null 2>&1; then
   eval "$(uv generate-shell-completion zsh)"
 fi
