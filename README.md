@@ -23,6 +23,11 @@ The first-class tools are:
 - `neovim`
 - `yazi`
 - `zellij`
+- `btop`
+
+The bundled fish runtime also enables argument completion. It ships native
+completions for the `dev-env` wrapper and uses `carapace` when available for
+broader command argument completions.
 
 The Neovim audit in [docs/nvim-audit.md](docs/nvim-audit.md) also tracks tools
 your current config expects, including LSPs, DAP adapters, `lazygit`, `fzf`,

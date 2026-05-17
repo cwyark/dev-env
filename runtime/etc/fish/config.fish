@@ -23,6 +23,15 @@ if not set -q EDITOR
 end
 
 if status is-interactive
+    if test -d "$DEV_ENV_HOME/etc/fish/completions"
+        set -g fish_complete_path "$DEV_ENV_HOME/etc/fish/completions" $fish_complete_path
+    end
+
+    if command -q carapace
+        set -gx CARAPACE_BRIDGES fish,bash,zsh,inshellisense
+        carapace _carapace fish | source
+    end
+
     alias nv nvim
 
     function y --description "Open yazi and cd into the chosen directory"

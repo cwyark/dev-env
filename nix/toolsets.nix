@@ -22,6 +22,8 @@ let
     fzf
     fnm
     lazygit
+    btop
+    carapace
     jq
     curl
     rsync

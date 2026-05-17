@@ -35,7 +35,7 @@
             cp -R ${./lib} root/lib
             cp -R ${./scripts} root/scripts
             cp -R ${./chezmoi} root/chezmoi
-            cp ${./runtime/etc/fish/config.fish} root/etc/fish/config.fish
+            cp -R ${./runtime/etc/fish}/* root/etc/fish/
             cp -R ${./bin} root/share/dev-env/bin-src
             cp -R ${./lib} root/share/dev-env/lib
             cp -R ${./scripts} root/share/dev-env/scripts

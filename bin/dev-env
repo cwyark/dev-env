@@ -24,6 +24,7 @@ Commands:
   platform       Print detected platform
   shell          Start the isolated fish shell
   zellij         Start zellij in the activated environment
+  btop           Start btop in the activated environment
   nvim [args...] Start neovim in the activated environment
   yazi [args...] Start yazi in the activated environment
   chezmoi-apply  Apply chezmoi source from this repo
@@ -32,7 +33,7 @@ EOF
 
 doctor() {
   missing=0
-  for cmd in fish nvim yazi zellij chezmoi git rg fd fzf fnm lazygit uv; do
+  for cmd in fish nvim yazi zellij btop chezmoi git rg fd fzf fnm lazygit uv carapace; do
     if command -v "$cmd" >/dev/null 2>&1; then
       printf 'ok      %s -> %s\n' "$cmd" "$(command -v "$cmd")"
     else
@@ -105,6 +106,9 @@ case "$cmd" in
     ;;
   zellij)
     exec zellij
+    ;;
+  btop)
+    exec btop
     ;;
   nvim)
     shift
