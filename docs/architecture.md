@@ -74,6 +74,19 @@ deciding which files should be portable as-is and which need templates.
 4. run `scripts/remote-install`
 5. start the remote `dev-env shell`
 
+For the common "jump straight into the `dev` zellij session" workflow, use:
+
+```sh
+bin/dev-ssh --session dev user@host
+```
+
+This installs the bundle if needed and then calls
+`dev-env zellij-dev dev` on the remote host, which attaches to `dev` or creates
+it when it is not running yet.
+
+If the remote host already has `~/.local/share/dev-env` installed, `dev-ssh`
+can skip the bundle upload entirely and just connect.
+
 ## Important Tradeoff
 
 Nix-built binaries often depend on `/nix/store`. A raw Nix closure is not the

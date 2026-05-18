@@ -24,6 +24,8 @@ Commands:
   platform       Print detected platform
   shell          Start the isolated fish shell
   zellij         Start zellij in the activated environment
+  zellij-dev [session]
+                 Attach to a zellij session, creating it if needed
   btop           Start btop in the activated environment
   nvim [args...] Start neovim in the activated environment
   yazi [args...] Start yazi in the activated environment
@@ -106,6 +108,26 @@ case "$cmd" in
     ;;
   zellij)
     exec zellij
+    ;;
+  zellij-dev)
+    shift
+    session="${1:-dev}"
+    if [ -z "$session" ]; then
+      session="dev"
+    fi
+    case "$session" in
+      *[!A-Za-z0-9._-]*)
+        printf 'dev-env: invalid zellij session name: %s\n' "$session" >&2
+        printf 'dev-env: use letters, numbers, dot, underscore, or dash only\n' >&2
+        exit 2
+        ;;
+    esac
+    if zellij attach "$session"; then
+      :
+    else
+      zellij attach --create-background "$session" >/dev/null 2>&1 || true
+      exec zellij attach "$session"
+    fi
     ;;
   btop)
     exec btop

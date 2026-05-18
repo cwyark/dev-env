@@ -14,6 +14,8 @@ should only need SSH, a POSIX shell, and a writable home or temp directory.
 
 `bin/dev-env shell` now enters a bundled `fish` shell inside the isolated
 environment. The repo no longer ships bash or zsh startup configs.
+`bin/dev-env zellij-dev dev` will attach to a remote or local `dev` session,
+creating it if needed.
 
 ## Essential Tools
 
@@ -65,6 +67,7 @@ After installing Nix and chezmoi on your trusted machine:
 ```sh
 bin/dev-env doctor
 bin/dev-env shell
+bin/dev-env zellij-dev dev
 bin/dev-env chezmoi-apply
 ```
 
@@ -74,6 +77,7 @@ The intended remote flow is:
 
 ```sh
 bin/dev-ssh user@host
+bin/dev-ssh --session dev user@host
 ```
 
 That command detects the remote platform, uploads a matching bundle if present,
@@ -88,6 +92,13 @@ and starts:
 ```text
 ~/.local/share/dev-env/bin/dev-env shell
 ```
+
+If you pass `--session dev`, it will instead start or attach to the remote
+`dev` zellij session.
+
+If the matching bundle is not present locally but the remote host already has
+`~/.local/share/dev-env` installed, `dev-ssh` will skip the upload and just
+connect.
 
 ## Current State
 
