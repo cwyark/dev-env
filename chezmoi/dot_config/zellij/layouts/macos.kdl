@@ -4,12 +4,26 @@ layout {
             plugin location="zellij:tab-bar"
         }
         children
-        pane size=2 borderless=true {
+        pane size=1 borderless=true {
             plugin location="zellij:status-bar"
         }
     }
 
-    tab focus=true {
+    tab name="dev-env" cwd="~/" focus=true {
         pane
+    }
+
+    tab name="btop" cwd="~/" {
+        pane command="btop"
+    }
+
+    tab name="leetcode" cwd="~/" {
+        pane command="nvim" {
+            args "leetcode"
+        }
+    }
+
+    tab name="Obsidian" cwd="~/SynologyDrive/Notes/Obsidian/cwyark" {
+        pane command="nvim"
     }
 }
