@@ -27,6 +27,7 @@ The first-class tools are:
 - `zellij`
 - `btop`
 - `eza`
+- `cmake`
 
 The bundled fish runtime also enables argument completion. It ships native
 completions for the `dev-env` wrapper and uses `carapace` when available for

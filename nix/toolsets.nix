@@ -13,6 +13,7 @@ let
     zellij
     fish
     chezmoi
+    cmake
   ]
   ++ optionalPackage "codex"
   ++ (with pkgs; [
@@ -34,7 +35,9 @@ let
   ]);
 in
 {
-  core = coreTools ++ darwinOptionalPackage "lima";
+  core = coreTools
+    ++ darwinOptionalPackage "lima"
+    ++ darwinOptionalPackage "mole";
 
   nvim = with pkgs; [
     lua-language-server

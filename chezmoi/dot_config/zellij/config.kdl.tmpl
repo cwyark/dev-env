@@ -234,6 +234,9 @@ web_client {
 }
 
 theme "catppuccin-macchiato"
- 
+
 default_mode "locked"
- 
+
+{{- if eq .chezmoi.os "darwin" }}
+default_layout "macos"
+{{- end }}
