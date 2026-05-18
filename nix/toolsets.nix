@@ -23,6 +23,7 @@ let
     fnm
     lazygit
     btop
+    eza
     carapace
     jq
     curl

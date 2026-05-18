@@ -32,6 +32,28 @@ if status is-interactive
         carapace _carapace fish | source
     end
 
+    if command -q eza
+        function ls --description "List files with eza"
+            command eza $argv
+        end
+
+        function l --description "List files in compact format with eza"
+            command eza -1 $argv
+        end
+
+        function ll --description "List files in long format with eza"
+            command eza -l --group-directories-first --icons=auto $argv
+        end
+
+        function la --description "List all files with eza"
+            command eza -la --group-directories-first --icons=auto $argv
+        end
+
+        function lt --description "List files as a tree with eza"
+            command eza --tree --group-directories-first --icons=auto $argv
+        end
+    end
+
     alias nv nvim
 
     function y --description "Open yazi and cd into the chosen directory"

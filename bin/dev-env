@@ -33,7 +33,7 @@ EOF
 
 doctor() {
   missing=0
-  for cmd in fish nvim yazi zellij btop chezmoi git rg fd fzf fnm lazygit uv carapace; do
+  for cmd in fish nvim yazi zellij btop chezmoi git rg fd fzf fnm lazygit eza uv carapace; do
     if command -v "$cmd" >/dev/null 2>&1; then
       printf 'ok      %s -> %s\n' "$cmd" "$(command -v "$cmd")"
     else

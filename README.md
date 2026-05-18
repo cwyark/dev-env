@@ -24,10 +24,14 @@ The first-class tools are:
 - `yazi`
 - `zellij`
 - `btop`
+- `eza`
 
 The bundled fish runtime also enables argument completion. It ships native
 completions for the `dev-env` wrapper and uses `carapace` when available for
 broader command argument completions.
+
+Interactive fish shells also alias `ls` to `eza` and provide `l`, `ll`, `la`,
+and `lt` as short forms for the common list and tree views.
 
 The Neovim audit in [docs/nvim-audit.md](docs/nvim-audit.md) also tracks tools
 your current config expects, including LSPs, DAP adapters, `lazygit`, `fzf`,
