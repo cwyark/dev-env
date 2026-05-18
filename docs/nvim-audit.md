@@ -28,6 +28,7 @@ Configured or ensured through Mason:
 - `neocmake`
 - `biome`
 - `taplo`
+- `bashls`
 
 ## DAP Adapters
 
@@ -58,6 +59,19 @@ Requested parsers:
 - `yaml`
 - `toml`
 - `regex`
+
+## Likely Languages
+
+The current config and repo shape point to these languages as your regular set:
+
+- Lua for Neovim config
+- Python
+- Rust
+- C and C++
+- CMake
+- JavaScript and TypeScript
+- Shell scripts
+- TOML
 
 ## Portability Notes
 

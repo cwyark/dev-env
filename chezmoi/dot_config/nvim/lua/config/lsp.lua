@@ -141,4 +141,5 @@ vim.lsp.enable({
   "neocmake",
   "biome",
   "taplo",
+  "bashls",
 })

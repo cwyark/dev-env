@@ -36,8 +36,7 @@ let
 in
 {
   core = coreTools
-    ++ darwinOptionalPackage "lima"
-    ++ darwinOptionalPackage "mole";
+    ++ darwinOptionalPackage "lima";
 
   nvim = with pkgs; [
     lua-language-server
