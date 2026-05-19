@@ -41,6 +41,7 @@
             cp -R ${./scripts} root/share/dev-env/scripts
             cp -R ${./chezmoi} root/share/dev-env/chezmoi
             cp -R ${./runtime} root/share/dev-env/runtime
+            chmod -R u+rwX root || true
             chmod +x root/bin/* root/scripts/* root/share/dev-env/scripts/* || true
             tar -C root -czf "$out/dev-env-${system}.tar.gz" .
           '';

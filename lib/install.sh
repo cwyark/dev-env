@@ -4,6 +4,13 @@ dev_env_install_home() {
   printf '%s\n' "${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
 }
 
+dev_env_make_tree_removable() {
+  tree="${1:-}"
+  if [ -n "$tree" ] && [ -d "$tree" ]; then
+    chmod -R u+rwX "$tree" 2>/dev/null || true
+  fi
+}
+
 dev_env_install_archive() {
   archive="${1:-}"
   if [ -z "$archive" ]; then
@@ -22,6 +29,7 @@ dev_env_install_archive() {
     rm -rf "$staging"
     return 1
   fi
+  dev_env_make_tree_removable "$staging"
 
   if ! mkdir -p "$parent"; then
     rm -rf "$staging"
@@ -39,6 +47,7 @@ dev_env_install_archive() {
   fi
   mv "$staging" "$DEV_ENV_HOME"
   if [ -d "$previous" ]; then
+    dev_env_make_tree_removable "$previous"
     if ! rm -rf "$previous"; then
       printf 'warning: installed dev-env, but failed to remove backup: %s\n' "$previous" >&2
     fi
