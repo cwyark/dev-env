@@ -54,6 +54,22 @@ if status is-interactive
         end
     end
 
+    if test (uname -s) = Darwin
+        function docker --description "Run docker commands through Lima on macOS"
+            set -l lima_docker_socket "$HOME/.lima/default/sock/docker.sock"
+
+            if test -S "$lima_docker_socket"; and command -q docker
+                set -lx DOCKER_HOST "unix://$lima_docker_socket"
+                command docker $argv
+            else if command -q colima
+                command colima nerdctl -- $argv
+            else
+                printf 'dev-env: no Lima Docker socket or lima command found\n' >&2
+                return 127
+            end
+        end
+    end
+
     alias nv nvim
 
     function y --description "Open yazi and cd into the chosen directory"

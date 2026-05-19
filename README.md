@@ -101,6 +101,40 @@ If the matching bundle is not present locally but the remote host already has
 `~/.local/share/dev-env` installed, `dev-ssh` will skip the upload and just
 connect.
 
+## Docker Build
+
+To build the Linux `x86_64` bundle inside a container:
+
+```sh
+scripts/build-bundle-docker
+```
+
+Before building, start a Colima instance with containerd and Rosetta enabled:
+
+```sh
+colima start --disk 16 --vm-type=vz --vz-rosetta --runtime containerd
+```
+
+That wrapper is a thin shell around:
+
+```sh
+colima nerdctl -- build \
+  --platform linux/amd64 \
+  --target bundle \
+  --output type=local,dest=dist \
+  -f docker/Dockerfile.bundle-builder \
+  .
+```
+
+The resulting artifact is written to:
+
+```text
+dist/dev-env-x86_64-linux.tar.gz
+```
+
+The builder image is based on Alpine and installs Nix with `apk`. On macOS the
+build uses Colima's `nerdctl` wrapper rather than the Docker socket path.
+
 ## Current State
 
 This is a scaffold. It does not yet contain prebuilt binary bundles, and Nix was

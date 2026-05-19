@@ -1,0 +1,27 @@
+# syntax=docker/dockerfile:1.7
+
+ARG ALPINE_IMAGE=alpine:3.22
+
+FROM --platform=$TARGETPLATFORM ${ALPINE_IMAGE} AS builder
+
+WORKDIR /workspace
+
+RUN apk add --no-cache \
+    bash \
+    ca-certificates \
+    coreutils \
+    git \
+    nix \
+    tar \
+    xz
+
+# Keep the build context small and deterministic.
+COPY . .
+
+RUN mkdir -p dist .cache \
+  && nix --extra-experimental-features 'nix-command flakes' --option sandbox false --option filter-syscalls false build .#packages.x86_64-linux.bundle \
+  && cp result/dev-env-x86_64-linux.tar.gz /tmp/dev-env-x86_64-linux.tar.gz
+
+FROM scratch AS bundle
+
+COPY --from=builder /tmp/dev-env-x86_64-linux.tar.gz /dev-env-x86_64-linux.tar.gz

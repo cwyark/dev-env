@@ -7,6 +7,9 @@ let
   darwinOptionalPackage = name:
     if pkgs.stdenv.isDarwin && builtins.hasAttr name pkgs then [ (builtins.getAttr name pkgs) ] else [ ];
 
+  dockerClient =
+    if builtins.hasAttr "docker-client" pkgs then [ pkgs.docker-client ] else [ ];
+
   coreTools = with pkgs; [
     neovim
     yazi
@@ -36,7 +39,9 @@ let
 in
 {
   core = coreTools
-    ++ darwinOptionalPackage "lima";
+    ++ dockerClient
+    ++ darwinOptionalPackage "lima"
+    ++ darwinOptionalPackage "colima";
 
   nvim = with pkgs; [
     lua-language-server

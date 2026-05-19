@@ -1,0 +1,7 @@
+.git
+.cache
+dist
+result
+result-*
+*.tar.gz
+*.log
