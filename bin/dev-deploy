@@ -1,0 +1,78 @@
+#!/usr/bin/env sh
+
+set -eu
+
+SELF_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
+
+# shellcheck source=../lib/platform.sh
+. "$REPO_ROOT/lib/platform.sh"
+# shellcheck source=../lib/ssh.sh
+. "$REPO_ROOT/lib/ssh.sh"
+
+usage() {
+  cat <<'EOF'
+Usage: dev-deploy [ssh-target]
+
+Detect the target platform and install the matching dev-env bundle.
+With no ssh-target, install the matching bundle on the local machine.
+EOF
+}
+
+target=""
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -*)
+      printf 'dev-deploy: unknown option: %s\n' "$1" >&2
+      usage >&2
+      exit 2
+      ;;
+    *)
+      if [ -n "$target" ]; then
+        printf 'dev-deploy: unexpected argument: %s\n' "$1" >&2
+        usage >&2
+        exit 2
+      fi
+      target="$1"
+      shift
+      ;;
+  esac
+done
+
+if [ -n "$target" ]; then
+  platform="$(dev_env_detect_remote_platform "$target")"
+else
+  platform="$(dev_env_platform)"
+fi
+
+bundle="$(dev_env_bundle_path "$REPO_ROOT" "$platform")"
+if [ ! -f "$bundle" ]; then
+  printf 'dev-deploy: missing bundle: %s\n' "$bundle" >&2
+  printf 'dev-deploy: build it with: scripts/build-bundle %s\n' "$platform" >&2
+  exit 1
+fi
+
+if [ -z "$target" ]; then
+  exec "$REPO_ROOT/scripts/remote-install" "$bundle"
+fi
+
+remote_tmp="$(
+  ssh "$target" 'tmp="${TMPDIR:-/tmp}"; if command -v mktemp >/dev/null 2>&1; then mktemp -d "$tmp/dev-env-upload.XXXXXX"; else d="$tmp/dev-env-upload.$$"; mkdir -p "$d"; echo "$d"; fi'
+)"
+
+cleanup_remote_tmp() {
+  if [ -n "${remote_tmp:-}" ]; then
+    ssh "$target" "rm -rf '$remote_tmp'" >/dev/null 2>&1 || true
+  fi
+}
+trap cleanup_remote_tmp EXIT HUP INT TERM
+
+ssh "$target" "mkdir -p '$remote_tmp/scripts' '$remote_tmp/lib'"
+scp "$bundle" "$target:$remote_tmp/dev-env.tar.gz"
+scp "$REPO_ROOT/scripts/remote-install" "$target:$remote_tmp/scripts/remote-install"
+scp "$REPO_ROOT/lib/install.sh" "$target:$remote_tmp/lib/install.sh"
+ssh "$target" "sh '$remote_tmp/scripts/remote-install' '$remote_tmp/dev-env.tar.gz'"

@@ -45,7 +45,8 @@ your current config expects, including LSPs, DAP adapters, `lazygit`, `fzf`,
 ```text
 bin/
   dev-env          # local command dispatcher
-  dev-ssh          # SSH deploy-and-enter helper
+  dev-ssh          # SSH enter helper for installed remotes
+  dev-deploy       # local/SSH bundle deployment helper
 chezmoi/
   ...              # chezmoi source state
 docs/
@@ -77,29 +78,40 @@ bin/dev-env chezmoi-apply
 The intended remote flow is:
 
 ```sh
+bin/dev-deploy user@host
 bin/dev-ssh user@host
-bin/dev-ssh --session dev user@host
+bin/dev-ssh --session user@host
 ```
 
-That command detects the remote platform, uploads a matching bundle if present,
+`dev-deploy` detects the target platform, uploads the matching bundle, and
 installs it under:
 
 ```text
 ~/.local/share/dev-env
 ```
 
-and starts:
+`dev-ssh` does not build, upload, or install bundles. It only connects to an
+already-installed remote and starts:
 
 ```text
 ~/.local/share/dev-env/bin/dev-env shell
 ```
 
-If you pass `--session dev`, it will instead start or attach to the remote
-`dev` zellij session.
+If you pass `--session`, it will instead start or attach to the remote `dev`
+zellij session. You can also pass a custom session name:
 
-If the matching bundle is not present locally but the remote host already has
-`~/.local/share/dev-env` installed, `dev-ssh` will skip the upload and just
-connect.
+```sh
+bin/dev-ssh --session work user@host
+```
+
+To install the matching bundle on the local machine, omit the SSH target:
+
+```sh
+bin/dev-deploy
+```
+
+If the matching bundle is not present locally, `dev-deploy` exits with the
+bundle path and the `scripts/build-bundle <platform>` command to run.
 
 ## Docker Build
 

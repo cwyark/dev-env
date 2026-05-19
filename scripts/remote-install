@@ -2,39 +2,10 @@
 
 set -eu
 
-archive="${1:-}"
-if [ -z "$archive" ]; then
-  printf 'usage: remote-install <archive.tar.gz>\n' >&2
-  exit 2
-fi
+SELF_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
 
-DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
-staging="${TMPDIR:-/tmp}/dev-env.staging.$$"
-previous="$DEV_ENV_HOME.previous.$(date +%Y%m%d%H%M%S)"
-parent="$(dirname "$DEV_ENV_HOME")"
+# shellcheck source=../lib/install.sh
+. "$REPO_ROOT/lib/install.sh"
 
-rm -rf "$staging"
-mkdir -p "$staging"
-tar -xzf "$archive" -C "$staging"
-
-if ! mkdir -p "$parent"; then
-  printf 'error: cannot create install parent: %s\n' "$parent" >&2
-  exit 1
-fi
-if [ -e "$DEV_ENV_HOME" ] && [ ! -w "$DEV_ENV_HOME" ]; then
-  printf 'error: install target is not writable: %s\n' "$DEV_ENV_HOME" >&2
-  printf 'hint: fix ownership or remove the existing directory, then retry\n' >&2
-  exit 1
-fi
-if [ -d "$DEV_ENV_HOME" ]; then
-  mv "$DEV_ENV_HOME" "$previous"
-fi
-mv "$staging" "$DEV_ENV_HOME"
-if [ -d "$previous" ]; then
-  if ! rm -rf "$previous"; then
-    printf 'warning: installed dev-env, but failed to remove backup: %s\n' "$previous" >&2
-  fi
-fi
-
-chmod +x "$DEV_ENV_HOME/bin/"* 2>/dev/null || true
-printf 'installed dev-env to %s\n' "$DEV_ENV_HOME"
+dev_env_install_archive "${1:-}"

@@ -66,26 +66,29 @@ deciding which files should be portable as-is and which need templates.
 
 ### 4. SSH deployment
 
-`bin/dev-ssh` is the high-level remote entrypoint:
+`bin/dev-deploy` is the deployment entrypoint:
 
 1. detect remote OS/arch
 2. choose `dist/dev-env-$platform.tar.gz`
 3. upload it to a temp directory
 4. run `scripts/remote-install`
-5. start the remote `dev-env shell`
 
-For the common "jump straight into the `dev` zellij session" workflow, use:
+When called without an SSH target, `bin/dev-deploy` detects the local platform
+and installs the matching local bundle.
+
+`bin/dev-ssh` is the remote entrypoint for machines that already have
+`~/.local/share/dev-env` installed. It does not upload or install bundles.
+
+For the common "jump straight into the `dev` zellij session" workflow, deploy
+first and then connect:
 
 ```sh
-bin/dev-ssh --session dev user@host
+bin/dev-deploy user@host
+bin/dev-ssh --session user@host
 ```
 
-This installs the bundle if needed and then calls
-`dev-env zellij-dev dev` on the remote host, which attaches to `dev` or creates
-it when it is not running yet.
-
-If the remote host already has `~/.local/share/dev-env` installed, `dev-ssh`
-can skip the bundle upload entirely and just connect.
+This calls `dev-env zellij-dev dev` on the remote host, which attaches to `dev`
+or creates it when it is not running yet.
 
 ## Important Tradeoff
 

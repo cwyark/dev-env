@@ -7,25 +7,25 @@ REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
 
 usage() {
   cat <<'EOF'
-Usage: dev-ssh [--session <name>] <ssh-target> [remote-command...]
+Usage: dev-ssh [--session [name]] <ssh-target>
 
-Deploy a matching dev-env bundle to the remote host and enter the environment.
+Enter an already-installed remote dev-env shell.
 When --session is set, attach to that zellij session on the remote host,
-creating it if needed.
+creating it if needed. The default session name is "dev".
 EOF
 }
 
 session=""
+use_session=0
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -s|--session)
       shift
-      session="${1:-}"
-      if [ -z "$session" ]; then
-        printf 'dev-ssh: missing session name after %s\n' "${1:---session}" >&2
-        exit 2
+      use_session=1
+      if [ "$#" -gt 1 ]; then
+        session="${1:-}"
+        shift
       fi
-      shift
       ;;
     --session=*)
       session="${1#*=}"
@@ -33,6 +33,7 @@ while [ "$#" -gt 0 ]; do
         printf 'dev-ssh: missing session name after --session\n' >&2
         exit 2
       fi
+      use_session=1
       shift
       ;;
     --)
@@ -54,6 +55,10 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
+if [ "$use_session" -eq 1 ] && [ -z "$session" ]; then
+  session="dev"
+fi
+
 target="${1:-}"
 if [ -z "$target" ] || [ "$target" = "-h" ] || [ "$target" = "--help" ]; then
   usage
@@ -61,54 +66,27 @@ if [ -z "$target" ] || [ "$target" = "-h" ] || [ "$target" = "--help" ]; then
 fi
 shift
 
-if [ -n "$session" ] && [ "$#" -gt 0 ]; then
-  printf 'dev-ssh: remote command arguments are not supported with --session\n' >&2
+if [ "$#" -gt 0 ]; then
+  printf 'dev-ssh: unexpected argument: %s\n' "$1" >&2
+  usage >&2
   exit 2
 fi
 
-if [ -n "$session" ]; then
-  case "$session" in
-    *[!A-Za-z0-9._-]*)
-      printf 'dev-ssh: invalid zellij session name: %s\n' "$session" >&2
-      printf 'dev-ssh: use letters, numbers, dot, underscore, or dash only\n' >&2
-      exit 2
-      ;;
-  esac
+# shellcheck source=../lib/ssh.sh
+. "$REPO_ROOT/lib/ssh.sh"
+
+if [ "$use_session" -eq 1 ]; then
+  dev_env_validate_session_name "$session"
 fi
 
-remote_platform="$(
-  ssh "$target" 'os=$(uname -s | tr "[:upper:]" "[:lower:]"); arch=$(uname -m); case "$os:$arch" in linux:x86_64|linux:amd64) echo x86_64-linux ;; linux:aarch64|linux:arm64) echo aarch64-linux ;; *) echo unsupported-$os-$arch; exit 1 ;; esac'
-)"
-
-bundle="$REPO_ROOT/dist/dev-env-$remote_platform.tar.gz"
-remote_has_dev_env=0
-if ssh "$target" 'test -x "$HOME/.local/share/dev-env/bin/dev-env"'; then
-  remote_has_dev_env=1
+if ! dev_env_remote_has_install "$target"; then
+  printf 'dev-ssh: dev-env is not installed on %s\n' "$target" >&2
+  printf 'dev-ssh: deploy it first with: bin/dev-deploy %s\n' "$target" >&2
+  exit 1
 fi
 
-if [ ! -f "$bundle" ]; then
-  if [ "$remote_has_dev_env" -eq 0 ]; then
-    printf 'missing bundle: %s\n' "$bundle" >&2
-    printf 'build it with: scripts/build-bundle %s\n' "$remote_platform" >&2
-    printf 'or install dev-env on the remote host first\n' >&2
-    exit 1
-  fi
-  bundle=""
-fi
-
-if [ -n "$bundle" ]; then
-  remote_tmp=".dev-env-upload-$$"
-  ssh "$target" "mkdir -p '$remote_tmp'"
-  scp "$bundle" "$target:$remote_tmp/dev-env.tar.gz"
-  scp "$REPO_ROOT/scripts/remote-install" "$target:$remote_tmp/remote-install"
-  ssh "$target" "sh '$remote_tmp/remote-install' '$remote_tmp/dev-env.tar.gz'"
-  ssh "$target" "rm -rf '$remote_tmp'"
-fi
-
-if [ -n "$session" ]; then
+if [ "$use_session" -eq 1 ]; then
   ssh -t "$target" "DEV_ENV_HOME=\"\$HOME/.local/share/dev-env\"; export DEV_ENV_HOME; PATH=\"\$DEV_ENV_HOME/bin:\$PATH\"; export PATH; exec \"\$HOME/.local/share/dev-env/bin/dev-env\" zellij-dev \"$session\""
-elif [ "$#" -gt 0 ]; then
-  ssh -t "$target" "DEV_ENV_HOME=\"\$HOME/.local/share/dev-env\"; export DEV_ENV_HOME; PATH=\"\$DEV_ENV_HOME/bin:\$PATH\"; export PATH; cd; exec sh -lc '$*'"
 else
   ssh -t "$target" "\$HOME/.local/share/dev-env/bin/dev-env shell"
 fi
