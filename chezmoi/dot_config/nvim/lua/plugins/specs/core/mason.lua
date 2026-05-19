@@ -9,6 +9,7 @@ local ensure_installed = {
   "pyright",
   "ruff",
   "rust_analyzer",
+  "zls",
   "neocmake",
   "biome",
   "taplo",

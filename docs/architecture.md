@@ -96,6 +96,10 @@ Nix-built binaries often depend on `/nix/store`. A raw Nix closure is not the
 same thing as a relocatable tarball. The scaffold starts with a simple bundle
 shape, but the bundle implementation must be validated per package.
 
+The current bundle step dereferences the runtime `bin/` tree before archiving
+so the shipped tarball contains real executable files instead of symlinks to
+the Nix store.
+
 If a package is not relocatable, use one of these strategies:
 
 - prefer official static/self-contained upstream archives for that tool

@@ -120,6 +120,8 @@ vim.lsp.config("rust_analyzer", {
   },
 })
 
+vim.lsp.config("zls", {})
+
 vim.lsp.config("lua_ls", {
   settings = {
     Lua = {
@@ -138,6 +140,7 @@ vim.lsp.enable({
   "pyright",
   "ruff",
   "rust_analyzer",
+  "zls",
   "neocmake",
   "biome",
   "taplo",

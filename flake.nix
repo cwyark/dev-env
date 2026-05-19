@@ -18,7 +18,9 @@
         runtime = pkgs.buildEnv {
           name = "dev-env-runtime";
           paths = toolsets.core ++ toolsets.nvim;
-          pathsToLink = [ "/bin" "/share" ];
+          # Git stores its remote helpers under libexec/git-core; Neovim's
+          # plugin bootstrap needs git-remote-https to be present.
+          pathsToLink = [ "/bin" "/libexec" "/share" ];
         };
       in
       {
@@ -29,8 +31,10 @@
           dontUnpack = true;
           installPhase = ''
             mkdir -p "$out"
-            mkdir -p root/bin root/etc/fish root/share/dev-env
-            cp -R ${runtime}/bin root/
+            mkdir -p root/bin root/libexec root/etc/fish root/share/dev-env
+            cp -aL ${runtime}/bin/. root/bin/
+            cp -aL ${runtime}/libexec/. root/libexec/
+            chmod u+w root/bin
             cp -R ${./bin}/* root/bin/
             cp -R ${./lib} root/lib
             cp -R ${./scripts} root/scripts

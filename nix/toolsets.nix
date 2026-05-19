@@ -34,6 +34,8 @@ let
     rsync
     openssh
     uv
+    zig
+    zls
     zstd
   ]);
 in

@@ -25,6 +25,7 @@ Configured or ensured through Mason:
 - `clangd`
 - `pyright`
 - `ruff`
+- `zls`
 - `neocmake`
 - `biome`
 - `taplo`
