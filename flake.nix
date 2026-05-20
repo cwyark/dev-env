@@ -20,55 +20,93 @@
           paths = toolsets.core ++ toolsets.nvim;
           # Git stores its remote helpers under libexec/git-core; Neovim's
           # plugin bootstrap needs git-remote-https to be present.
-          pathsToLink = [ "/bin" "/libexec" "/share" ];
+          pathsToLink = [ "/bin" "/lib" "/libexec" "/share" ];
         };
+        copyVersion =
+          if builtins.pathExists ./VERSION
+          then "cp -a ${./VERSION} root/VERSION"
+          else "";
       in
       {
         packages.default = runtime;
-
         packages.bundle = pkgs.stdenvNoCC.mkDerivation {
           name = "dev-env-${system}-bundle";
           dontUnpack = true;
+          nativeBuildInputs = [
+            pkgs.file
+            pkgs.findutils
+            pkgs.gnugrep
+            pkgs.gnutar
+            pkgs.gzip
+          ];
           installPhase = ''
             mkdir -p "$out"
-            mkdir -p root/bin root/libexec root/etc/fish root/share/dev-env
+            mkdir -p \
+              root/bin \
+              root/lib \
+              root/libexec \
+              root/etc/fish \
+              root/share/dev-env \
+              root/share/dev-env/source \
+              root/share/dev-env/reports
+
             cp -aL ${runtime}/bin/. root/bin/
+            cp -aL ${runtime}/lib/. root/lib/
             cp -aL ${runtime}/libexec/. root/libexec/
-            chmod u+w root/bin
-            cp -R ${./bin}/* root/bin/
-            cp -R ${./lib} root/lib
-            cp -R ${./scripts} root/scripts
-            cp -R ${./chezmoi} root/chezmoi
-            cp -R ${./runtime/etc/fish}/* root/etc/fish/
-            cp -R ${./bin} root/share/dev-env/bin-src
-            cp -R ${./lib} root/share/dev-env/lib
-            cp -R ${./scripts} root/share/dev-env/scripts
-            cp -R ${./chezmoi} root/share/dev-env/chezmoi
-            cp -R ${./runtime} root/share/dev-env/runtime
-            chmod -R u+rwX root || true
-            chmod +x root/bin/* root/scripts/* root/share/dev-env/scripts/* || true
-            tar -C root -czf "$out/dev-env-${system}.tar.gz" .
+            cp -aL ${runtime}/share/. root/share/
+            chmod u+w root/bin root/lib root/libexec root/share
+
+            for src in ${./bin}/*; do
+              name="$(basename "$src")"
+              if [ -e "root/bin/$name" ]; then
+                printf 'error: bin collision while bundling: %s\n' "$name" >&2
+                exit 1
+              fi
+            done
+
+            cp -a ${./bin}/. root/bin/
+            cp -a ${./lib}/. root/lib/
+            cp -a ${./scripts}/. root/scripts/
+            cp -a ${./chezmoi}/. root/chezmoi/
+            cp -a ${./runtime/etc/fish}/. root/etc/fish/
+
+            cp -a ${./bin}/. root/share/dev-env/source/bin/
+            cp -a ${./lib}/. root/share/dev-env/source/lib/
+            cp -a ${./scripts}/. root/share/dev-env/source/scripts/
+            cp -a ${./chezmoi}/. root/share/dev-env/source/chezmoi/
+            cp -a ${./runtime}/. root/share/dev-env/source/runtime/
+
+            ${copyVersion}
+
+            chmod -R u+rwX root
+            find root/bin root/scripts root/share/dev-env/source/scripts -type f -exec chmod u+x {} +
+
+            store_refs_report="root/share/dev-env/reports/nix-store-references.txt"
+            if grep -RIl '/nix/store' root > "$store_refs_report"; then
+              printf 'warning: bundle still contains /nix/store references; see share/dev-env/reports/nix-store-references.txt\n' >&2
+            else
+              : > "$store_refs_report"
+            fi
+
+            dynamic_files_report="root/share/dev-env/reports/file-types.txt"
+            find root/bin root/libexec -type f -perm -u+x -exec file {} + > "$dynamic_files_report"
+
+            tar \
+              --sort=name \
+              --mtime='UTC 1970-01-01' \
+              --owner=0 \
+              --group=0 \
+              --numeric-owner \
+              -C root \
+              -czf "$out/dev-env-${system}.tar.gz" .
           '';
         };
 
         devShells.default = pkgs.mkShell {
-          packages = toolsets.core ++ toolsets.nvim ++ toolsets.packaging;
+          packages = toolsets.core ++ toolsets.nvim;
           shellHook = ''
             export DEV_ENV_REPO="$PWD"
             export DEV_ENV_HOME="''${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
-
-            if [ -z "''${DEV_ENV_NIX_SHELL_ACTIVE:-}" ]; then
-              export DEV_ENV_NIX_SHELL_ACTIVE=1
-              if [ "''${DEV_ENV_QUIET:-0}" != "1" ]; then
-                printf 'dev-env: entered nix shell (%s)\n' "${system}"
-              fi
-              dev_env_exit_hook() {
-                if [ "''${DEV_ENV_QUIET:-0}" != "1" ]; then
-                  printf 'dev-env: exited nix shell (%s)\n' "${system}"
-                fi
-              }
-              trap dev_env_exit_hook EXIT
-            fi
           '';
         };
 

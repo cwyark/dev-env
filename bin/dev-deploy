@@ -9,6 +9,8 @@ REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
 . "$REPO_ROOT/lib/platform.sh"
 # shellcheck source=../lib/ssh.sh
 . "$REPO_ROOT/lib/ssh.sh"
+# shellcheck source=../lib/install.sh
+. "$REPO_ROOT/lib/install.sh"
 
 usage() {
   cat <<'EOF'
@@ -57,7 +59,8 @@ if [ ! -f "$bundle" ]; then
 fi
 
 if [ -z "$target" ]; then
-  exec "$REPO_ROOT/scripts/remote-install" "$bundle"
+  dev_env_install_archive "$bundle"
+  exit $?
 fi
 
 remote_tmp="$(
@@ -71,8 +74,7 @@ cleanup_remote_tmp() {
 }
 trap cleanup_remote_tmp EXIT HUP INT TERM
 
-ssh "$target" "mkdir -p '$remote_tmp/scripts' '$remote_tmp/lib'"
+ssh "$target" "mkdir -p '$remote_tmp/lib'"
 scp "$bundle" "$target:$remote_tmp/dev-env.tar.gz"
-scp "$REPO_ROOT/scripts/remote-install" "$target:$remote_tmp/scripts/remote-install"
 scp "$REPO_ROOT/lib/install.sh" "$target:$remote_tmp/lib/install.sh"
-ssh "$target" "sh '$remote_tmp/scripts/remote-install' '$remote_tmp/dev-env.tar.gz'"
+ssh "$target" ". '$remote_tmp/lib/install.sh'; dev_env_install_archive '$remote_tmp/dev-env.tar.gz'"

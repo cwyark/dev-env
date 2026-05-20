@@ -58,7 +58,6 @@ nix/
   toolsets.nix     # package groups
 scripts/
   build-bundle
-  remote-install
 flake.nix
 ```
 

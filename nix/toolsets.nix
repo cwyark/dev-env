@@ -12,17 +12,16 @@ let
 
   coreTools = with pkgs; [
     neovim
-    yazi
     zellij
     fish
     chezmoi
-    cmake
   ]
-  ++ optionalPackage "codex"
   ++ (with pkgs; [
     git
+    cmake
     ripgrep
     fd
+    yazi
     fzf
     fnm
     lazygit
@@ -35,8 +34,10 @@ let
     openssh
     uv
     zig
-    zls
     zstd
+    codex
+    cargo
+    nodejs
   ]);
 in
 {
@@ -50,20 +51,15 @@ in
     rust-analyzer
     clang-tools
     pyright
+    zls
     ruff
     biome
     taplo
-    nodejs
     tree-sitter
-    cargo
   ]
   ++ optionalPackage "neocmakelsp"
   ++ optionalPackage "codelldb"
   ++ optionalPackage "bash-debug-adapter"
   ++ optionalPackage "debugpy";
 
-  packaging = with pkgs; [
-    nixpkgs-fmt
-    shellcheck
-  ];
 }
