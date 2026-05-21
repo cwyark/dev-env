@@ -10,7 +10,8 @@ The design intentionally separates three concerns:
 - **shell entrypoints** activate or deploy the environment over SSH.
 
 The remote-host goal is: no `apt`, no `yum`, no `brew`, no root. A remote host
-should only need SSH, a POSIX shell, and a writable home or temp directory.
+should only need SSH, Nix, a POSIX shell, and a writable home or temp
+directory.
 
 `bin/dev-env shell` now enters a bundled `fish` shell inside the isolated
 environment. The repo no longer ships bash or zsh startup configs.
@@ -84,8 +85,8 @@ bin/dev-ssh --session user@host
 bin/dev-clean user@host
 ```
 
-`dev-deploy` detects the target platform, uploads the matching bundle, and
-installs it under:
+`dev-deploy` detects the target platform, uploads the source tree, builds the
+matching bundle on the remote with Nix, and installs it under:
 
 ```text
 ~/.local/share/dev-env

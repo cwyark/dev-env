@@ -31,6 +31,11 @@ dev_env_remote_has_install() {
   ssh "$target" 'test -x "$HOME/.local/share/dev-env/bin/dev-env"'
 }
 
+dev_env_sh_quote() {
+  value="${1:-}"
+  printf "'%s'" "$(printf '%s' "$value" | sed "s/'/'\"'\"'/g")"
+}
+
 dev_env_bundle_path() {
   repo_root="${1:-}"
   platform="${2:-}"

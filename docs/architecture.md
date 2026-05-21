@@ -78,12 +78,15 @@ deciding which files should be portable as-is and which need templates.
 `bin/dev-deploy` is the deployment entrypoint:
 
 1. detect remote OS/arch
-2. choose `dist/dev-env-$platform.tar.gz`
-3. upload it to a temp directory
-4. run `scripts/remote-install`
+2. choose `dist/dev-env-$platform.tar.gz` for local installs
+3. upload a source snapshot to a temp directory on remote hosts
+4. run `nix build` on the remote host
+5. install the resulting bundle
 
 When called without an SSH target, `bin/dev-deploy` detects the local platform
 and installs the matching local bundle.
+
+Remote deployment expects Nix to be installed on the target host.
 
 `bin/dev-ssh` is the remote entrypoint for machines that already have
 `~/.local/share/dev-env` installed. It does not upload or install bundles.
