@@ -24,6 +24,14 @@ dev_env_install_runtime_config() {
     mkdir -p "$(dirname "$nvim_target")"
     cp -a "$nvim_source" "$nvim_target"
   fi
+
+  yazi_source="$install_root/chezmoi/dot_config/yazi"
+  yazi_target="$install_root/config/yazi"
+  if [ -d "$yazi_source" ]; then
+    rm -rf "$yazi_target"
+    mkdir -p "$(dirname "$yazi_target")"
+    cp -a "$yazi_source" "$yazi_target"
+  fi
 }
 
 dev_env_install_archive() {
