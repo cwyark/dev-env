@@ -15,17 +15,53 @@
       let
         pkgs = import nixpkgs { inherit system; };
         toolsets = import ./nix/toolsets.nix { inherit pkgs; };
-        runtime = pkgs.buildEnv {
+        copyVersionToRoot =
+          if builtins.pathExists ./VERSION
+          then "cp -a ${./VERSION} root/VERSION"
+          else "";
+        copyVersionToOut =
+          if builtins.pathExists ./VERSION
+          then ''cp -a ${./VERSION} "$out/VERSION"''
+          else "";
+        toolRuntime = pkgs.buildEnv {
           name = "dev-env-runtime";
           paths = toolsets.core ++ toolsets.nvim;
           # Git stores its remote helpers under libexec/git-core; Neovim's
           # plugin bootstrap needs git-remote-https to be present.
           pathsToLink = [ "/bin" "/lib" "/libexec" "/share" ];
         };
-        copyVersion =
-          if builtins.pathExists ./VERSION
-          then "cp -a ${./VERSION} root/VERSION"
-          else "";
+        devEnvFiles = pkgs.stdenvNoCC.mkDerivation {
+          name = "dev-env-files";
+          dontUnpack = true;
+          installPhase = ''
+            mkdir -p \
+              "$out/bin" \
+              "$out/lib" \
+              "$out/chezmoi" \
+              "$out/share/dev-env/etc/fish" \
+              "$out/share/dev-env/source"
+
+            cp -a ${./bin}/. "$out/bin/"
+            cp -a ${./lib}/. "$out/lib/"
+            cp -a ${./chezmoi}/. "$out/chezmoi/"
+            cp -a ${./runtime/etc/fish}/. "$out/share/dev-env/etc/fish/"
+
+            cp -a ${./bin}/. "$out/share/dev-env/source/bin/"
+            cp -a ${./lib}/. "$out/share/dev-env/source/lib/"
+            cp -a ${./chezmoi}/. "$out/share/dev-env/source/chezmoi/"
+            cp -a ${./runtime}/. "$out/share/dev-env/source/runtime/"
+
+            ${copyVersionToOut}
+
+            chmod -R u+rwX "$out"
+            find "$out/bin" -type f -exec chmod u+x {} +
+          '';
+        };
+        runtime = pkgs.buildEnv {
+          name = "dev-env-runtime";
+          paths = toolsets.core ++ toolsets.nvim ++ [ devEnvFiles ];
+          pathsToLink = [ "/bin" "/lib" "/libexec" "/share" "/chezmoi" ];
+        };
       in
       {
         packages.default = runtime;
@@ -54,10 +90,10 @@
               root/state
             : > root/.dev-env-root
 
-            cp -aL ${runtime}/bin/. root/bin/
-            cp -aL ${runtime}/lib/. root/lib/
-            cp -aL ${runtime}/libexec/. root/libexec/
-            cp -aL ${runtime}/share/. root/share/
+            cp -aL ${toolRuntime}/bin/. root/bin/
+            cp -aL ${toolRuntime}/lib/. root/lib/
+            cp -aL ${toolRuntime}/libexec/. root/libexec/
+            cp -aL ${toolRuntime}/share/. root/share/
             chmod u+w root/bin root/lib root/libexec root/share
 
             for src in ${./bin}/*; do
@@ -80,7 +116,7 @@
             cp -a ${./chezmoi}/. root/share/dev-env/source/chezmoi/
             cp -a ${./runtime}/. root/share/dev-env/source/runtime/
 
-            ${copyVersion}
+            ${copyVersionToRoot}
 
             chmod -R u+rwX root
             find root/bin root/scripts root/share/dev-env/source/scripts -type f -exec chmod u+x {} +

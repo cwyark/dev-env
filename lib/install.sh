@@ -11,6 +11,21 @@ dev_env_make_tree_removable() {
   fi
 }
 
+dev_env_install_runtime_config() {
+  install_root="${1:-}"
+  if [ -z "$install_root" ]; then
+    return 2
+  fi
+
+  nvim_source="$install_root/chezmoi/dot_config/nvim"
+  nvim_target="$install_root/config/nvim"
+  if [ -d "$nvim_source" ]; then
+    rm -rf "$nvim_target"
+    mkdir -p "$(dirname "$nvim_target")"
+    cp -a "$nvim_source" "$nvim_target"
+  fi
+}
+
 dev_env_install_archive() {
   archive="${1:-}"
   if [ -z "$archive" ]; then
@@ -46,6 +61,7 @@ dev_env_install_archive() {
     mv "$DEV_ENV_HOME" "$previous"
   fi
   mv "$staging" "$DEV_ENV_HOME"
+  dev_env_install_runtime_config "$DEV_ENV_HOME"
   if [ -d "$previous" ]; then
     dev_env_make_tree_removable "$previous"
     if ! rm -rf "$previous"; then

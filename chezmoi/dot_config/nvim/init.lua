@@ -2,7 +2,7 @@
 
 require('config.global')
 require('config.option')
-require('config.autocmd')
+require('config.empty_autocmd')
 
 require('plugins')
 require('config.lsp')

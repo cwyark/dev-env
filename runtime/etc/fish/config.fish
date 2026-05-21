@@ -4,7 +4,15 @@ if not set -q DEV_ENV_HOME
     set -gx DEV_ENV_HOME "$HOME/.local/share/dev-env"
 end
 
-fish_add_path "$DEV_ENV_HOME/bin"
+if not set -q DEV_ENV_ROOT
+    set -gx DEV_ENV_ROOT "$DEV_ENV_HOME"
+end
+
+if not set -q DEV_ENV_ETC
+    set -gx DEV_ENV_ETC "$DEV_ENV_ROOT/etc"
+end
+
+fish_add_path "$DEV_ENV_ROOT/bin" "$DEV_ENV_HOME/bin"
 
 if not set -q XDG_CONFIG_HOME
     set -gx XDG_CONFIG_HOME "$DEV_ENV_HOME/config"
@@ -33,8 +41,8 @@ if not set -q EDITOR
 end
 
 if status is-interactive
-    if test -d "$DEV_ENV_HOME/etc/fish/completions"
-        set -g fish_complete_path "$DEV_ENV_HOME/etc/fish/completions" $fish_complete_path
+    if test -d "$DEV_ENV_ETC/fish/completions"
+        set -g fish_complete_path "$DEV_ENV_ETC/fish/completions" $fish_complete_path
     end
 
     if command -q carapace

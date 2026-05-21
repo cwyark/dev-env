@@ -122,7 +122,6 @@ If a package is not relocatable, use one of these strategies:
 - prefer official static/self-contained upstream archives for that tool
 - build a truly static binary where practical
 - keep Nix for local machines and use a custom artifact fetcher for remotes
-- require Nix only on trusted long-lived remotes, not arbitrary hosts
 
 ## Remote Profiles
 

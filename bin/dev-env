@@ -2,7 +2,17 @@
 
 set -eu
 
-SELF_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+SELF="$0"
+while [ -L "$SELF" ]; do
+  dir="$(CDPATH= cd -- "$(dirname -- "$SELF")" && pwd)"
+  link="$(readlink "$SELF")"
+  case "$link" in
+    /*) SELF="$link" ;;
+    *) SELF="$dir/$link" ;;
+  esac
+done
+
+SELF_DIR="$(CDPATH= cd -- "$(dirname -- "$SELF")" && pwd)"
 REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
 
 # shellcheck source=../lib/platform.sh
@@ -10,7 +20,15 @@ REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
 
 DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
 export DEV_ENV_HOME
-export PATH="$DEV_ENV_HOME/bin:$PATH"
+DEV_ENV_ROOT="${DEV_ENV_ROOT:-$REPO_ROOT}"
+export DEV_ENV_ROOT
+if [ -d "$DEV_ENV_ROOT/etc" ]; then
+  DEV_ENV_ETC="${DEV_ENV_ETC:-$DEV_ENV_ROOT/etc}"
+else
+  DEV_ENV_ETC="${DEV_ENV_ETC:-$DEV_ENV_ROOT/share/dev-env/etc}"
+fi
+export DEV_ENV_ETC
+export PATH="$DEV_ENV_ROOT/bin:$DEV_ENV_HOME/bin:$PATH"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$DEV_ENV_HOME/config}"
 export XDG_DATA_HOME="${XDG_DATA_HOME:-$DEV_ENV_HOME/share}"
 export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$DEV_ENV_HOME/cache}"
@@ -104,7 +122,7 @@ case "$cmd" in
       exit 1
     fi
     export SHELL="$shell"
-    export FISH_INIT_SCRIPT="$DEV_ENV_HOME/etc/fish/config.fish"
+    export FISH_INIT_SCRIPT="$DEV_ENV_ETC/fish/config.fish"
     if [ "${DEV_ENV_QUIET:-0}" != "1" ]; then
       printf 'dev-env: entered fish shell (%s)\n' "$(dev_env_platform)"
     fi
@@ -145,7 +163,7 @@ case "$cmd" in
       exit 1
     fi
     export SHELL="$shell"
-    export FISH_INIT_SCRIPT="$DEV_ENV_HOME/etc/fish/config.fish"
+    export FISH_INIT_SCRIPT="$DEV_ENV_ETC/fish/config.fish"
     exec "$shell" --login --no-config -C "source \$FISH_INIT_SCRIPT; if zellij attach \"$session\"; else zellij attach --create-background \"$session\" >/dev/null 2>&1; exec zellij attach \"$session\"; end"
     ;;
   btop)
