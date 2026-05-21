@@ -28,6 +28,8 @@ Remote systems use a private prefix:
 ```text
 ~/.local/share/dev-env
   bin/
+  cache/
+  config/
   etc/
   share/
   state/
@@ -38,14 +40,19 @@ Activation sets:
 ```sh
 DEV_ENV_HOME="$HOME/.local/share/dev-env"
 PATH="$DEV_ENV_HOME/bin:$PATH"
-XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+XDG_CONFIG_HOME="$DEV_ENV_HOME/config"
 XDG_DATA_HOME="$DEV_ENV_HOME/share"
 XDG_CACHE_HOME="$DEV_ENV_HOME/cache"
+XDG_STATE_HOME="$DEV_ENV_HOME/state"
 ```
 
-The scaffold keeps `XDG_CONFIG_HOME` as the normal `~/.config` by default so
-chezmoi can manage normal application locations. This can be switched later to a
-fully private config root if you want zero dotfile writes on remotes.
+Temporary files continue to use the host's system temporary directory
+(`TMPDIR`, usually `/tmp`). The runtime does not override `TMPDIR`.
+
+Disposable remote use should keep config, cache, and state under the private
+prefix so removing `~/.local/share/dev-env` removes the development
+environment. The bundle includes a `.dev-env-root` marker so cleanup tools can
+refuse unsafe deletes.
 
 The `dev-env shell` entrypoint is fish-first and should launch the bundled fish
 runtime with its own config from `etc/fish/config.fish`. The repo no longer
@@ -54,6 +61,8 @@ ships bash or zsh startup files.
 ### 3. chezmoi source state
 
 chezmoi owns dotfiles and templates. It should not be the package manager.
+It is intended for trusted hosts because applying it writes normal home
+dotfiles outside `DEV_ENV_HOME`.
 
 Recommended use:
 
@@ -89,6 +98,14 @@ bin/dev-ssh --session user@host
 
 This calls `dev-env zellij-dev dev` on the remote host, which attaches to `dev`
 or creates it when it is not running yet.
+
+`bin/dev-clean` removes an installed local or remote prefix:
+
+```sh
+bin/dev-clean user@host
+```
+
+It removes only `~/.local/share/dev-env` and only when `.dev-env-root` exists.
 
 ## Important Tradeoff
 

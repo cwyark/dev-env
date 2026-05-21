@@ -6,6 +6,10 @@ end
 
 fish_add_path "$DEV_ENV_HOME/bin"
 
+if not set -q XDG_CONFIG_HOME
+    set -gx XDG_CONFIG_HOME "$DEV_ENV_HOME/config"
+end
+
 if not set -q XDG_DATA_HOME
     set -gx XDG_DATA_HOME "$DEV_ENV_HOME/share"
 end
@@ -13,6 +17,12 @@ end
 if not set -q XDG_CACHE_HOME
     set -gx XDG_CACHE_HOME "$DEV_ENV_HOME/cache"
 end
+
+if not set -q XDG_STATE_HOME
+    set -gx XDG_STATE_HOME "$DEV_ENV_HOME/state"
+end
+
+mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$XDG_STATE_HOME"
 
 if not set -q EDITOR
     if set -q SSH_CONNECTION

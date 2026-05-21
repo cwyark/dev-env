@@ -43,12 +43,16 @@
             mkdir -p "$out"
             mkdir -p \
               root/bin \
+              root/cache \
+              root/config \
               root/lib \
               root/libexec \
               root/etc/fish \
               root/share/dev-env \
               root/share/dev-env/source \
-              root/share/dev-env/reports
+              root/share/dev-env/reports \
+              root/state
+            : > root/.dev-env-root
 
             cp -aL ${runtime}/bin/. root/bin/
             cp -aL ${runtime}/lib/. root/lib/

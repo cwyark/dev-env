@@ -47,6 +47,7 @@ bin/
   dev-env          # local command dispatcher
   dev-ssh          # SSH enter helper for installed remotes
   dev-deploy       # local/SSH bundle deployment helper
+  dev-clean        # local/SSH cleanup helper
 chezmoi/
   ...              # chezmoi source state
 docs/
@@ -69,7 +70,7 @@ After installing Nix and chezmoi on your trusted machine:
 bin/dev-env doctor
 bin/dev-env shell
 bin/dev-env zellij-dev dev
-bin/dev-env chezmoi-apply
+bin/dev-env chezmoi-apply # trusted host dotfiles only
 ```
 
 ## Remote Usage
@@ -80,6 +81,7 @@ The intended remote flow is:
 bin/dev-deploy user@host
 bin/dev-ssh user@host
 bin/dev-ssh --session user@host
+bin/dev-clean user@host
 ```
 
 `dev-deploy` detects the target platform, uploads the matching bundle, and
@@ -88,6 +90,18 @@ installs it under:
 ```text
 ~/.local/share/dev-env
 ```
+
+The activated remote environment keeps runtime config, cache, and state under
+that same prefix:
+
+```text
+~/.local/share/dev-env/config
+~/.local/share/dev-env/cache
+~/.local/share/dev-env/state
+```
+
+Temporary files continue to use the host's system temporary directory
+(`TMPDIR`, usually `/tmp`).
 
 `dev-ssh` does not build, upload, or install bundles. It only connects to an
 already-installed remote and starts:
@@ -111,6 +125,12 @@ bin/dev-deploy
 
 If the matching bundle is not present locally, `dev-deploy` exits with the
 bundle path and the `scripts/build-bundle <platform>` command to run.
+
+`dev-clean` removes only `~/.local/share/dev-env`, and refuses to run unless the
+directory contains the bundle marker file `.dev-env-root`.
+
+`bin/dev-env chezmoi-apply` is for trusted hosts. It applies normal home
+dotfiles and is not part of the disposable remote flow.
 
 ## Docker Build
 

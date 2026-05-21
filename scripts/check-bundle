@@ -61,10 +61,15 @@ run_check() {
 }
 
 require_path bin/dev-env
+require_path bin/dev-clean
+require_path .dev-env-root
+require_path cache
+require_path config
 require_path lib/platform.sh
 require_path scripts
 require_path chezmoi
 require_path etc/fish/config.fish
+require_path state
 require_path share/dev-env/source/bin
 require_path share/dev-env/source/lib
 require_path share/dev-env/source/scripts
@@ -76,6 +81,7 @@ require_path share/dev-env/reports/file-types.txt
 run_check dev-env-help "$DEV_ENV_HOME/bin/dev-env" --help
 run_check dev-env-version "$DEV_ENV_HOME/bin/dev-env" version
 run_check dev-env-platform "$DEV_ENV_HOME/bin/dev-env" platform
+run_check dev-clean-help "$DEV_ENV_HOME/bin/dev-clean" --help
 run_check fish-version "$DEV_ENV_HOME/bin/fish" --version
 run_check nvim-version "$DEV_ENV_HOME/bin/nvim" --version
 run_check git-version "$DEV_ENV_HOME/bin/git" --version
