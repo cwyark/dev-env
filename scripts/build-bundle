@@ -2,17 +2,62 @@
 
 set -eu
 
-system="${1:-}"
-if [ -z "$system" ]; then
-  system="$(nix eval --raw --impure --expr 'builtins.currentSystem')"
-fi
+usage() {
+  cat <<'EOF'
+Usage: scripts/build-bundle [target]
+
+Targets:
+  mac-m1          Build aarch64-darwin locally with Nix
+  linux-x86_64    Build x86_64-linux in Docker/Colima
+  linux-arm64     Build aarch64-linux in Docker/Colima
+
+Aliases:
+  mac-arm64, aarch64-darwin
+  linux-amd64, x86_64-linux
+  linux-aarch64, aarch64-linux
+
+With no target, builds the current Nix system locally.
+EOF
+}
 
 repo_root="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 cd "$repo_root"
 
-# `dev-env shell` points XDG_CACHE_HOME at the portable runtime. Keep Nix's
-# own cache in the repo so bundle builds do not depend on that runtime path.
-export XDG_CACHE_HOME="$repo_root/.cache"
+target="${1:-}"
+if [ "${2:-}" != "" ]; then
+  usage >&2
+  exit 2
+fi
+
+mode="native"
+docker_platform=""
+case "$target" in
+  "")
+    system="$(nix eval --raw --impure --expr 'builtins.currentSystem')"
+    ;;
+  -h|--help|help)
+    usage
+    exit 0
+    ;;
+  mac-m1|mac-arm64|aarch64-darwin)
+    system="aarch64-darwin"
+    ;;
+  linux-x86_64|linux-amd64|x86_64-linux)
+    system="x86_64-linux"
+    mode="docker"
+    docker_platform="linux/amd64"
+    ;;
+  linux-arm64|linux-aarch64|aarch64-linux)
+    system="aarch64-linux"
+    mode="docker"
+    docker_platform="linux/arm64"
+    ;;
+  *)
+    printf 'error: unknown build target: %s\n\n' "$target" >&2
+    usage >&2
+    exit 2
+    ;;
+esac
 
 if git -C "$repo_root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   version="$(git -C "$repo_root" rev-parse --short HEAD)"
@@ -23,27 +68,45 @@ else
   version="unknown"
 fi
 
-version_file="$repo_root/VERSION"
-had_version=0
-old_version=""
-if [ -f "$version_file" ]; then
-  had_version=1
-  old_version="$(cat "$version_file")"
-fi
-printf '%s\n' "$version" > "$version_file"
-cleanup_version_file() {
-  if [ "$had_version" = 1 ]; then
-    printf '%s\n' "$old_version" > "$version_file"
-  else
-    rm -f "$version_file"
-  fi
-}
-trap cleanup_version_file EXIT HUP INT TERM
+if [ "$mode" = "docker" ]; then
+  # Requires Colima running with containerd. linux/amd64 on Apple Silicon also
+  # requires Rosetta or another amd64 emulation path.
+  colima nerdctl -- build \
+    --platform="$docker_platform" \
+    --build-arg "BUNDLE_SYSTEM=$system" \
+    --build-arg "DEV_ENV_VERSION=$version" \
+    --target bundle \
+    --output type=local,dest=dist \
+    -f docker/Dockerfile.bundle-builder \
+    .
+  printf 'wrote %s (%s)\n' "dist/dev-env-$system.tar.gz" "$version"
+else
+  # `dev-env shell` points XDG_CACHE_HOME at the portable runtime. Keep Nix's
+  # own cache in the repo so bundle builds do not depend on that runtime path.
+  export XDG_CACHE_HOME="$repo_root/.cache"
 
-mkdir -p dist
-nix build ".#packages.$system.bundle" -o "result-$system-bundle"
-tmp="dist/dev-env-$system.tar.gz.$$"
-cp "result-$system-bundle/dev-env-$system.tar.gz" "$tmp"
-chmod 0644 "$tmp"
-mv -f "$tmp" "dist/dev-env-$system.tar.gz"
-printf 'wrote %s (%s)\n' "dist/dev-env-$system.tar.gz" "$version"
+  version_file="$repo_root/VERSION"
+  had_version=0
+  old_version=""
+  if [ -f "$version_file" ]; then
+    had_version=1
+    old_version="$(cat "$version_file")"
+  fi
+  printf '%s\n' "$version" > "$version_file"
+  cleanup_version_file() {
+    if [ "$had_version" = 1 ]; then
+      printf '%s\n' "$old_version" > "$version_file"
+    else
+      rm -f "$version_file"
+    fi
+  }
+  trap cleanup_version_file EXIT HUP INT TERM
+
+  mkdir -p dist
+  nix build ".#packages.$system.bundle" -o "result-$system-bundle"
+  tmp="dist/dev-env-$system.tar.gz.$$"
+  cp "result-$system-bundle/dev-env-$system.tar.gz" "$tmp"
+  chmod 0644 "$tmp"
+  mv -f "$tmp" "dist/dev-env-$system.tar.gz"
+  printf 'wrote %s (%s)\n' "dist/dev-env-$system.tar.gz" "$version"
+fi

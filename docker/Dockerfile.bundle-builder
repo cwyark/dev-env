@@ -1,8 +1,12 @@
 # syntax=docker/dockerfile:1.7
 
 ARG ALPINE_IMAGE=alpine:3.22
+ARG BUNDLE_SYSTEM=x86_64-linux
 
 FROM --platform=$TARGETPLATFORM ${ALPINE_IMAGE} AS builder
+
+ARG BUNDLE_SYSTEM
+ARG DEV_ENV_VERSION=unknown
 
 WORKDIR /workspace
 
@@ -19,9 +23,11 @@ RUN apk add --no-cache \
 COPY . .
 
 RUN mkdir -p dist .cache \
-  && nix --extra-experimental-features 'nix-command flakes' --option sandbox false --option filter-syscalls false build .#packages.x86_64-linux.bundle \
-  && cp result/dev-env-x86_64-linux.tar.gz /tmp/dev-env-x86_64-linux.tar.gz
+  && printf '%s\n' "$DEV_ENV_VERSION" > VERSION \
+  && nix --extra-experimental-features 'nix-command flakes' --option sandbox false --option filter-syscalls false build ".#packages.${BUNDLE_SYSTEM}.bundle" \
+  && mkdir -p /bundle \
+  && cp "result/dev-env-${BUNDLE_SYSTEM}.tar.gz" "/bundle/dev-env-${BUNDLE_SYSTEM}.tar.gz"
 
 FROM scratch AS bundle
 
-COPY --from=builder /tmp/dev-env-x86_64-linux.tar.gz /dev-env-x86_64-linux.tar.gz
+COPY --from=builder /bundle/ /

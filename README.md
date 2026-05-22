@@ -133,35 +133,44 @@ directory contains the bundle marker file `.dev-env-root`.
 `bin/dev-env chezmoi-apply` is for trusted hosts. It applies normal home
 dotfiles and is not part of the disposable remote flow.
 
-## Docker Build
+## Bundle Build
 
-To build the Linux `x86_64` bundle inside a container:
+Use `scripts/build-bundle` as the single bundle build entry point:
 
 ```sh
-scripts/build-bundle-docker
+scripts/build-bundle mac-m1
+scripts/build-bundle linux-x86_64
+scripts/build-bundle linux-arm64
 ```
 
-Before building, start a Colima instance with containerd and Rosetta enabled:
+`mac-m1` builds the `aarch64-darwin` bundle locally with Nix. The Linux targets
+build inside a container with Colima and write the matching artifact to `dist/`.
+
+Before building Linux bundles on macOS, start a Colima instance with containerd.
+For `linux-x86_64` on Apple Silicon, enable Rosetta:
 
 ```sh
 colima start --disk 16 --vm-type=vz --vz-rosetta --runtime containerd
 ```
 
-That wrapper is a thin shell around:
+The Linux build path is a thin shell around:
 
 ```sh
 colima nerdctl -- build \
   --platform linux/amd64 \
+  --build-arg BUNDLE_SYSTEM=x86_64-linux \
   --target bundle \
   --output type=local,dest=dist \
   -f docker/Dockerfile.bundle-builder \
   .
 ```
 
-The resulting artifact is written to:
+The resulting artifacts are written to:
 
 ```text
+dist/dev-env-aarch64-darwin.tar.gz
 dist/dev-env-x86_64-linux.tar.gz
+dist/dev-env-aarch64-linux.tar.gz
 ```
 
 The builder image is based on Alpine and installs Nix with `apk`. On macOS the
