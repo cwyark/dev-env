@@ -32,6 +32,11 @@ rm -rf "$tmp"
 mkdir -p "$tmp"
 tar -xzf "$archive" -C "$tmp"
 
+# Mirror the deploy/install path so runtime config regressions are caught.
+# The raw archive intentionally stores source config under chezmoi/.
+. "$tmp/lib/install.sh"
+dev_env_install_runtime_config "$tmp"
+
 DEV_ENV_HOME="$tmp"
 export DEV_ENV_HOME
 PATH="$DEV_ENV_HOME/bin:$PATH"
@@ -65,6 +70,9 @@ require_path bin/dev-clean
 require_path .dev-env-root
 require_path cache
 require_path config
+require_path config/nvim
+require_path config/yazi
+require_path config/zellij/config.kdl
 require_path lib/platform.sh
 require_path scripts
 require_path chezmoi

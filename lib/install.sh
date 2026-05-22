@@ -11,27 +11,72 @@ dev_env_make_tree_removable() {
   fi
 }
 
+dev_env_install_copy_config_dir() {
+  source_dir="${1:-}"
+  target_dir="${2:-}"
+  if [ -z "$source_dir" ] || [ -z "$target_dir" ] || [ ! -d "$source_dir" ]; then
+    return 0
+  fi
+
+  rm -rf "$target_dir"
+  mkdir -p "$target_dir"
+  (
+    cd "$source_dir"
+    find . -type d -exec mkdir -p "$target_dir/{}" \;
+    find . -type f | while IFS= read -r source_file; do
+      target_file="$target_dir/$source_file"
+      case "$target_file" in
+        *.tmpl) target_file="${target_file%.tmpl}" ;;
+      esac
+      mkdir -p "$(dirname "$target_file")"
+      if [ "${source_file##*.}" = "tmpl" ]; then
+        dev_env_install_render_template "$source_file" > "$target_file"
+      else
+        cp -a "$source_file" "$target_file"
+      fi
+    done
+  )
+}
+
+dev_env_install_render_template() {
+  template="${1:-}"
+  if [ -z "$template" ]; then
+    return 2
+  fi
+
+  case "$(uname -s 2>/dev/null || true)" in
+    Darwin) chezmoi_os="darwin" ;;
+    Linux) chezmoi_os="linux" ;;
+    *) chezmoi_os="unknown" ;;
+  esac
+
+  awk -v chezmoi_os="$chezmoi_os" '
+    $0 ~ /^[[:space:]]*\{\{-[[:space:]]*if eq \.chezmoi\.os "darwin"[[:space:]]*\}\}[[:space:]]*$/ {
+      darwin_only = 1
+      next
+    }
+    $0 ~ /^[[:space:]]*\{\{-[[:space:]]*end[[:space:]]*\}\}[[:space:]]*$/ {
+      darwin_only = 0
+      next
+    }
+    darwin_only && chezmoi_os != "darwin" {
+      next
+    }
+    {
+      print
+    }
+  ' "$template"
+}
+
 dev_env_install_runtime_config() {
   install_root="${1:-}"
   if [ -z "$install_root" ]; then
     return 2
   fi
 
-  nvim_source="$install_root/chezmoi/dot_config/nvim"
-  nvim_target="$install_root/config/nvim"
-  if [ -d "$nvim_source" ]; then
-    rm -rf "$nvim_target"
-    mkdir -p "$(dirname "$nvim_target")"
-    cp -a "$nvim_source" "$nvim_target"
-  fi
-
-  yazi_source="$install_root/chezmoi/dot_config/yazi"
-  yazi_target="$install_root/config/yazi"
-  if [ -d "$yazi_source" ]; then
-    rm -rf "$yazi_target"
-    mkdir -p "$(dirname "$yazi_target")"
-    cp -a "$yazi_source" "$yazi_target"
-  fi
+  dev_env_install_copy_config_dir "$install_root/chezmoi/dot_config/nvim" "$install_root/config/nvim"
+  dev_env_install_copy_config_dir "$install_root/chezmoi/dot_config/yazi" "$install_root/config/yazi"
+  dev_env_install_copy_config_dir "$install_root/chezmoi/dot_config/zellij" "$install_root/config/zellij"
 }
 
 dev_env_install_archive() {
