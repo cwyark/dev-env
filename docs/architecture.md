@@ -99,8 +99,18 @@ bin/dev-deploy user@host
 bin/dev-ssh --session user@host
 ```
 
-This calls `dev-env zellij-dev dev` on the remote host, which attaches to `dev`
+This calls `dev-env zellij dev` on the remote host, which attaches to `dev`
 or creates it when it is not running yet.
+
+Zellij sessions are long-lived. If you rely on SSH agent forwarding, remember
+that `SSH_AUTH_SOCK` belongs to the SSH connection that created the session.
+Reattaching to an older session can leave the socket path stale. In that case,
+start a fresh zellij session for the new SSH login or use a host-local agent
+with a stable socket.
+
+The dev-env wrapper forces `TERM=xterm-256color` only for Zellij launches so
+the multiplexer uses a conservative terminal description even when Ghostty
+reports `xterm-ghostty` to the outer shell.
 
 `bin/dev-clean` removes an installed local or remote prefix:
 

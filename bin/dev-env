@@ -17,6 +17,8 @@ REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
 
 # shellcheck source=../lib/platform.sh
 . "$REPO_ROOT/lib/platform.sh"
+# shellcheck source=../lib/ssh.sh
+. "$REPO_ROOT/lib/ssh.sh"
 
 DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
 export DEV_ENV_HOME
@@ -52,7 +54,7 @@ Commands:
   platform       Print detected platform
   shell          Start the isolated fish shell
   zellij         Start zellij in the activated environment
-  zellij-dev [session]
+  zellij [session]
                  Attach to a zellij session, creating it if needed
   btop           Start btop in the activated environment
   nvim [args...] Start neovim in the activated environment
@@ -136,21 +138,16 @@ case "$cmd" in
     exit "$status"
     ;;
   zellij)
-    exec zellij
-    ;;
-  zellij-dev)
     shift
-    session="${1:-dev}"
-    if [ -z "$session" ]; then
-      session="dev"
+    if [ "$#" -gt 1 ]; then
+      printf 'dev-env: unexpected argument: %s\n' "$2" >&2
+      exit 2
     fi
-    case "$session" in
-      *[!A-Za-z0-9._-]*)
-        printf 'dev-env: invalid zellij session name: %s\n' "$session" >&2
-        printf 'dev-env: use letters, numbers, dot, underscore, or dash only\n' >&2
-        exit 2
-        ;;
-    esac
+    session="${1:-}"
+    if [ -z "$session" ]; then
+      TERM=xterm-256color exec zellij
+    fi
+    dev_env_validate_session_name "$session"
     shell="${DEV_ENV_FISH:-}"
     if [ -z "$shell" ]; then
       shell="$(command -v fish 2>/dev/null || true)"
@@ -164,7 +161,7 @@ case "$cmd" in
     fi
     export SHELL="$shell"
     export FISH_INIT_SCRIPT="$DEV_ENV_ETC/fish/config.fish"
-    exec "$shell" --login --no-config -C "source \$FISH_INIT_SCRIPT; if zellij attach \"$session\"; else zellij attach --create-background \"$session\" >/dev/null 2>&1; exec zellij attach \"$session\"; end"
+    TERM=xterm-256color exec "$shell" --login --no-config -C "source \$FISH_INIT_SCRIPT; if zellij attach \"$session\"; else zellij attach --create-background \"$session\" >/dev/null 2>&1; exec zellij attach \"$session\"; end"
     ;;
   btop)
     exec btop

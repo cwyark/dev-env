@@ -86,7 +86,7 @@ if ! dev_env_remote_has_install "$target"; then
 fi
 
 if [ "$use_session" -eq 1 ]; then
-  ssh -t "$target" "DEV_ENV_HOME=\"\$HOME/.local/share/dev-env\"; export DEV_ENV_HOME; PATH=\"\$DEV_ENV_HOME/bin:\$PATH\"; export PATH; exec \"\$HOME/.local/share/dev-env/bin/dev-env\" zellij-dev \"$session\""
+  ssh -t "$target" "DEV_ENV_HOME=\"\$HOME/.local/share/dev-env\"; export DEV_ENV_HOME; PATH=\"\$DEV_ENV_HOME/bin:\$PATH\"; export PATH; exec \"\$HOME/.local/share/dev-env/bin/dev-env\" zellij \"$session\""
 else
   ssh -t "$target" "exec \"\$HOME/.local/share/dev-env/bin/dev-env\" shell"
 fi

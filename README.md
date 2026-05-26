@@ -15,7 +15,7 @@ directory.
 
 `bin/dev-env shell` now enters a bundled `fish` shell inside the isolated
 environment. The repo no longer ships bash or zsh startup configs.
-`bin/dev-env zellij-dev dev` will attach to a remote or local `dev` session,
+`bin/dev-env zellij dev` will attach to a remote or local `dev` session,
 creating it if needed.
 
 ## Essential Tools
@@ -70,7 +70,7 @@ After installing Nix and chezmoi on your trusted machine:
 ```sh
 bin/dev-env doctor
 bin/dev-env shell
-bin/dev-env zellij-dev dev
+bin/dev-env zellij dev
 bin/dev-env chezmoi-apply # trusted host dotfiles only
 ```
 
