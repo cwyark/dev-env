@@ -28,6 +28,7 @@ The first-class tools are:
 - `zellij`
 - `btop`
 - `eza`
+- `sshfs`
 - `cmake`
 
 The bundled fish runtime also enables argument completion. It ships native

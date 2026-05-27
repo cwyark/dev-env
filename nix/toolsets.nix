@@ -32,6 +32,7 @@ let
     curl
     rsync
     openssh
+    sshfs
     uv
     zig
     zstd

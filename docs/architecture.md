@@ -140,7 +140,7 @@ If a package is not relocatable, use one of these strategies:
 
 Suggested profiles:
 
-- `core`: `neovim`, `yazi`, `zellij`, shell basics
+- `core`: `neovim`, `yazi`, `zellij`, `sshfs`, shell basics
 - `nvim`: LSP/format/debug tools needed by your config
 - `full`: local workstation tools
 
