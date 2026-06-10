@@ -28,6 +28,7 @@ require('plugins.specs.dev.venv-selector')
 
 require('plugins.specs.ai.codecompanion')
 require('plugins.specs.ai.codex')
+require('plugins.specs.ai.opencode')
 
 require('plugins.specs.misc.leetcode')
 require('plugins.specs.misc.render-markdown')

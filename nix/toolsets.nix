@@ -37,6 +37,7 @@ let
     zig
     zstd
     codex
+    opencode
     cargo
     nodejs
   ]);
