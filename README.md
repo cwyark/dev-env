@@ -145,19 +145,19 @@ scripts/build-bundle linux-arm64
 ```
 
 `mac-m1` builds the `aarch64-darwin` bundle locally with Nix. The Linux targets
-build inside a container with Colima and write the matching artifact to `dist/`.
+build inside Apple's `container` tool and write the matching artifact to `dist/`.
 
-Before building Linux bundles on macOS, start a Colima instance with containerd.
-For `linux-x86_64` on Apple Silicon, enable Rosetta:
+Before building Linux bundles on macOS, make sure `container` is installed and
+its builder is available. For `linux-x86_64` on Apple Silicon, enable Rosetta:
 
 ```sh
-colima start --disk 16 --vm-type=vz --vz-rosetta --runtime containerd
+container builder start
 ```
 
 The Linux build path is a thin shell around:
 
 ```sh
-colima nerdctl -- build \
+container build \
   --platform linux/amd64 \
   --build-arg BUNDLE_SYSTEM=x86_64-linux \
   --target bundle \

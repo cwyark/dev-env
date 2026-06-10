@@ -8,8 +8,8 @@ Usage: scripts/build-bundle [target]
 
 Targets:
   mac-m1          Build aarch64-darwin locally with Nix
-  linux-x86_64    Build x86_64-linux in Docker/Colima
-  linux-arm64     Build aarch64-linux in Docker/Colima
+  linux-x86_64    Build x86_64-linux in Apple container
+  linux-arm64     Build aarch64-linux in Apple container
 
 Aliases:
   mac-arm64, aarch64-darwin
@@ -69,9 +69,8 @@ else
 fi
 
 if [ "$mode" = "docker" ]; then
-  # Requires Colima running with containerd. linux/amd64 on Apple Silicon also
-  # requires Rosetta or another amd64 emulation path.
-  colima nerdctl -- build \
+  # `container build` uses Apple's builder and handles the platform selection.
+  container build \
     --platform="$docker_platform" \
     --build-arg "BUNDLE_SYSTEM=$system" \
     --build-arg "DEV_ENV_VERSION=$version" \
