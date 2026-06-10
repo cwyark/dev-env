@@ -2,7 +2,7 @@ vim.pack.add({
   {
     src = "https://github.com/nickjvandyke/opencode.nvim",
     name = "opencode.nvim",
-    version = "v0.11.0"
+    version = "v1.17.0"
   }
 })
 
@@ -50,14 +50,14 @@ vim.keymap.set('n', 'goo', function()
   return require('opencode').operator('@this ') .. "_"
 end, { desc = "Add line to OpenCode", expr = true })
 
-vim.keymap.set({ 'n', 't' }, '<C-.>', function()
+vim.keymap.set({ 'n', 't' }, '<C-\\>', function()
   require('snacks.terminal').toggle(opencode_cmd, snacks_terminal_opts)
 end, { desc = "Toggle OpenCode" })
 
-vim.keymap.set('n', '<S-C-u>', function()
+vim.keymap.set('n', '<S-C-]>', function()
   require('opencode').command('session.half.page.up')
 end, { desc = "Scroll OpenCode up" })
 
-vim.keymap.set('n', '<S-C-d>', function()
+vim.keymap.set('n', '<S-C-[>', function()
   require('opencode').command('session.half.page.down')
 end, { desc = "Scroll OpenCode down" })

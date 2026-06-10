@@ -36,7 +36,6 @@ let
     uv
     zig
     zstd
-    codex
     opencode
     cargo
     nodejs

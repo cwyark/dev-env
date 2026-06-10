@@ -27,7 +27,6 @@ require('plugins.specs.dev.sniprun')
 require('plugins.specs.dev.venv-selector')
 
 require('plugins.specs.ai.codecompanion')
-require('plugins.specs.ai.codex')
 require('plugins.specs.ai.opencode')
 
 require('plugins.specs.misc.leetcode')

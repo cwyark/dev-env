@@ -14,11 +14,6 @@
       "src": "https://github.com/olimorris/codecompanion.nvim",
       "version": "19.0.0 - 20.0.0"
     },
-    "codex": {
-      "rev": "e1149cbc875ff71ee21f8832b9fe815a270442b3",
-      "src": "https://github.com/johnseth97/codex.nvim",
-      "version": "'main'"
-    },
     "flash": {
       "rev": "fcea7ff883235d9024dc41e638f164a450c14ca2",
       "src": "https://github.com/folke/flash.nvim",
@@ -123,7 +118,7 @@
     "opencode.nvim": {
       "rev": "dcff90e3bc97b7a9e9070cc344bc964b007e166f",
       "src": "https://github.com/nickjvandyke/opencode.nvim",
-      "version": "'v0.11.0'"
+      "version": "'v1.17.0'"
     },
     "overseer": {
       "rev": "3d0c7e7bbfe1a1c6f9bfecd0af8709171a97df71",
