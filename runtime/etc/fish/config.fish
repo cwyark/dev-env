@@ -32,6 +32,23 @@ end
 
 mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_CACHE_HOME" "$XDG_STATE_HOME"
 
+set -l dev_env_node_version_file
+for dev_env_root in "$DEV_ENV_ROOT" "$DEV_ENV_ROOT/share/dev-env/source"
+    if test -r "$dev_env_root/.node-version"
+        set dev_env_node_version_file "$dev_env_root/.node-version"
+        break
+    end
+end
+
+if test -n "$dev_env_node_version_file"
+    set -l dev_env_node_version (string trim (string collect < "$dev_env_node_version_file"))
+
+    if test -n "$dev_env_node_version"; and command -q fnm
+        fnm env --use-on-cd --shell fish | source
+        fnm use --install-if-missing --silent-if-unchanged "$dev_env_node_version" >/dev/null
+    end
+end
+
 if not set -q EDITOR
     if set -q SSH_CONNECTION
         set -gx EDITOR vim

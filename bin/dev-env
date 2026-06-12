@@ -44,6 +44,26 @@ dev_env_activate() {
     "$XDG_STATE_HOME"
 }
 
+dev_env_activate_node() {
+  node_version_file=""
+  for root in "$DEV_ENV_ROOT" "$DEV_ENV_ROOT/share/dev-env/source" "$REPO_ROOT"; do
+    if [ -r "$root/.node-version" ]; then
+      node_version_file="$root/.node-version"
+      break
+    fi
+  done
+
+  if [ -n "$node_version_file" ] && command -v fnm >/dev/null 2>&1; then
+    node_version="$(sed -n '1p' "$node_version_file")"
+    if [ -n "$node_version" ]; then
+      eval "$(fnm env --shell bash)"
+      if ! fnm use --install-if-missing --silent-if-unchanged "$node_version" >/dev/null; then
+        printf 'dev-env: fnm node %s unavailable, using Nix fallback\n' "$node_version" >&2
+      fi
+    fi
+  fi
+}
+
 usage() {
   cat <<'EOF'
 Usage: dev-env <command>
@@ -65,7 +85,7 @@ EOF
 
 doctor() {
   missing=0
-  for cmd in fish nvim yazi zellij btop chezmoi git rg fd fzf fnm lazygit eza uv carapace zig zls; do
+  for cmd in fish nvim yazi zellij btop chezmoi git rg fd fzf fnm node npm lazygit eza uv carapace zig zls; do
     if command -v "$cmd" >/dev/null 2>&1; then
       printf 'ok      %s -> %s\n' "$cmd" "$(command -v "$cmd")"
     else
@@ -100,6 +120,7 @@ version() {
 
 cmd="${1:-}"
 dev_env_activate
+dev_env_activate_node
 case "$cmd" in
   version|--version|-V)
     version

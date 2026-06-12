@@ -23,6 +23,14 @@
           if builtins.pathExists ./VERSION
           then ''cp -a ${./VERSION} "$out/VERSION"''
           else "";
+        copyNodeVersionToRoot =
+          if builtins.pathExists ./.node-version
+          then "cp -a ${./.node-version} root/.node-version"
+          else "";
+        copyNodeVersionToOut =
+          if builtins.pathExists ./.node-version
+          then ''cp -a ${./.node-version} "$out/.node-version"''
+          else "";
         toolRuntime = pkgs.buildEnv {
           name = "dev-env-runtime";
           paths = toolsets.core ++ toolsets.nvim;
@@ -46,10 +54,12 @@
             cp -a ${./chezmoi}/. "$out/chezmoi/"
             cp -a ${./runtime/etc/fish}/. "$out/share/dev-env/etc/fish/"
 
+            ${copyNodeVersionToOut}
             cp -a ${./bin}/. "$out/share/dev-env/source/bin/"
             cp -a ${./lib}/. "$out/share/dev-env/source/lib/"
             cp -a ${./chezmoi}/. "$out/share/dev-env/source/chezmoi/"
             cp -a ${./runtime}/. "$out/share/dev-env/source/runtime/"
+            cp -a ${./.node-version} "$out/share/dev-env/source/.node-version"
 
             ${copyVersionToOut}
 
@@ -109,12 +119,14 @@
             cp -a ${./scripts}/. root/scripts/
             cp -a ${./chezmoi}/. root/chezmoi/
             cp -a ${./runtime/etc/fish}/. root/etc/fish/
+            ${copyNodeVersionToRoot}
 
             cp -a ${./bin}/. root/share/dev-env/source/bin/
             cp -a ${./lib}/. root/share/dev-env/source/lib/
             cp -a ${./scripts}/. root/share/dev-env/source/scripts/
             cp -a ${./chezmoi}/. root/share/dev-env/source/chezmoi/
             cp -a ${./runtime}/. root/share/dev-env/source/runtime/
+            cp -a ${./.node-version} root/share/dev-env/source/.node-version
 
             ${copyVersionToRoot}
 

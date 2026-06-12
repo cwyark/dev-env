@@ -12,7 +12,7 @@ Derived from reading `~/.config/nvim` on 2026-05-16.
 
 - `lazygit`: `toggleterm` opens `lazygit`
 - `fzf`: `fzf.vim` checks for the `fzf` executable
-- `node`/`npm`: local Node installer and `TSInstallCLI`
+- `node`/`npm`: fnm-managed Node `24.16.0` and `TSInstallCLI`
 - `tree-sitter`: installed through `npm install -g tree-sitter-cli`
 - `cargo`: required by the SnipRun config on macOS
 
@@ -80,7 +80,7 @@ The current config and repo shape point to these languages as your regular set:
   For maximum portability, prefer binaries provided by the dev-env tool bundle.
 - `tree-sitter` parser compilation can require a compiler. Remote profiles
   should either ship parsers or accept a reduced parser set.
-- Node-based tools should use a bundled Node runtime or a pinned local runtime,
+- Node-based tools should use the fnm-managed Node runtime in dev-env shells,
   not the remote system Node.
 - DAP support is the least portable layer and should be treated as optional
   until the core editor experience is stable.
