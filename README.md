@@ -28,6 +28,7 @@ The first-class tools are:
 - `zellij`
 - `btop`
 - `eza`
+- `bun`
 - `sshfs`
 - `cmake`
 
@@ -36,7 +37,8 @@ completions for the `dev-env` wrapper and uses `carapace` when available for
 broader command argument completions.
 
 `dev-env` activation uses `fnm` and Node `24.16.0` from the fnm-managed
-installation, while keeping the Nix-provided Node as a fallback.
+installation, plus Bun for global tool installs, while keeping the Nix-provided
+Node as a fallback.
 
 Interactive fish shells also alias `ls` to `eza` and provide `l`, `ll`, `la`,
 and `lt` as short forms for the common list and tree views.
@@ -60,6 +62,8 @@ docs/
   nvim-audit.md
 lib/
   platform.sh      # platform detection helpers
+  node-tools.sh    # fnm/node bootstrap helpers
+  bun-tools.sh     # bun/global package bootstrap helpers
 nix/
   toolsets.nix     # package groups
 scripts/

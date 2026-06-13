@@ -12,8 +12,9 @@ Derived from reading `~/.config/nvim` on 2026-05-16.
 
 - `lazygit`: `toggleterm` opens `lazygit`
 - `fzf`: `fzf.vim` checks for the `fzf` executable
-- `node`/`npm`: fnm-managed Node `24.16.0` and `TSInstallCLI`
-- `tree-sitter`: installed through `npm install -g tree-sitter-cli`
+- `node`/`bun`: fnm-managed Node `24.16.0` and `TSInstallCLI`
+- `opencode`: installed through `bun add -g opencode-ai@1.17.4`
+- `tree-sitter`: installed through `bun add -g tree-sitter-cli`
 - `cargo`: required by the SnipRun config on macOS
 
 ## LSP Servers

@@ -158,7 +158,14 @@
           packages = toolsets.core ++ toolsets.nvim;
           shellHook = ''
             export DEV_ENV_REPO="$PWD"
+            export DEV_ENV_ROOT="''${DEV_ENV_ROOT:-$PWD}"
             export DEV_ENV_HOME="''${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
+
+            . ${./lib/node-tools.sh}
+            . ${./lib/bun-tools.sh}
+            dev_env_use_fnm_node || true
+            dev_env_activate_bun
+            dev_env_ensure_bun_tools || true
           '';
         };
 

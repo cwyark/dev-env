@@ -92,6 +92,9 @@ run_check dev-env-platform "$DEV_ENV_HOME/bin/dev-env" platform
 run_check dev-clean-help "$DEV_ENV_HOME/bin/dev-clean" --help
 run_check fish-version "$DEV_ENV_HOME/bin/fish" --version
 run_check nvim-version "$DEV_ENV_HOME/bin/nvim" --version
+run_check bun-version bun --version
+run_check opencode-version opencode --version
+run_check tree-sitter tree-sitter --version
 run_check git-version "$DEV_ENV_HOME/bin/git" --version
 run_check yazi-version "$DEV_ENV_HOME/bin/yazi" --version
 run_check zellij-version "$DEV_ENV_HOME/bin/zellij" --version

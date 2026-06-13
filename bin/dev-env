@@ -19,6 +19,10 @@ REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
 . "$REPO_ROOT/lib/platform.sh"
 # shellcheck source=../lib/ssh.sh
 . "$REPO_ROOT/lib/ssh.sh"
+# shellcheck source=../lib/node-tools.sh
+. "$REPO_ROOT/lib/node-tools.sh"
+# shellcheck source=../lib/bun-tools.sh
+. "$REPO_ROOT/lib/bun-tools.sh"
 
 DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
 export DEV_ENV_HOME
@@ -45,23 +49,20 @@ dev_env_activate() {
 }
 
 dev_env_activate_node() {
-  node_version_file=""
-  for root in "$DEV_ENV_ROOT" "$DEV_ENV_ROOT/share/dev-env/source" "$REPO_ROOT"; do
-    if [ -r "$root/.node-version" ]; then
-      node_version_file="$root/.node-version"
-      break
-    fi
-  done
-
-  if [ -n "$node_version_file" ] && command -v fnm >/dev/null 2>&1; then
-    node_version="$(sed -n '1p' "$node_version_file")"
-    if [ -n "$node_version" ]; then
-      eval "$(fnm env --shell bash)"
-      if ! fnm use --install-if-missing --silent-if-unchanged "$node_version" >/dev/null; then
+  if ! dev_env_use_fnm_node; then
+    node_version_file="$(dev_env_node_version_file || true)"
+    if [ -n "$node_version_file" ]; then
+      node_version="$(sed -n '1p' "$node_version_file")"
+      if [ -n "$node_version" ]; then
         printf 'dev-env: fnm node %s unavailable, using Nix fallback\n' "$node_version" >&2
       fi
     fi
   fi
+}
+
+dev_env_activate_bun_tools() {
+  dev_env_activate_bun
+  dev_env_ensure_bun_tools || true
 }
 
 usage() {
@@ -85,7 +86,7 @@ EOF
 
 doctor() {
   missing=0
-  for cmd in fish nvim yazi zellij btop chezmoi git rg fd fzf fnm node npm lazygit eza uv carapace zig zls; do
+  for cmd in fish nvim yazi zellij btop chezmoi git rg fd fzf fnm bun node opencode tree-sitter lazygit eza uv carapace zig zls; do
     if command -v "$cmd" >/dev/null 2>&1; then
       printf 'ok      %s -> %s\n' "$cmd" "$(command -v "$cmd")"
     else
@@ -121,6 +122,7 @@ version() {
 cmd="${1:-}"
 dev_env_activate
 dev_env_activate_node
+dev_env_activate_bun_tools
 case "$cmd" in
   version|--version|-V)
     version

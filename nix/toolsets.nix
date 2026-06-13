@@ -24,6 +24,7 @@ let
     yazi
     fzf
     fnm
+    bun
     lazygit
     btop
     eza
@@ -36,7 +37,6 @@ let
     uv
     zig
     zstd
-    opencode
     cargo
     nodejs
   ]);

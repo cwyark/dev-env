@@ -12,7 +12,12 @@ if not set -q DEV_ENV_ETC
     set -gx DEV_ENV_ETC "$DEV_ENV_ROOT/etc"
 end
 
+if not set -q BUN_INSTALL
+    set -gx BUN_INSTALL "$DEV_ENV_HOME/bun"
+end
+
 fish_add_path "$DEV_ENV_ROOT/bin" "$DEV_ENV_HOME/bin"
+fish_add_path "$BUN_INSTALL/bin"
 
 if not set -q XDG_CONFIG_HOME
     set -gx XDG_CONFIG_HOME "$DEV_ENV_HOME/config"

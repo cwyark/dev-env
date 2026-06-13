@@ -74,9 +74,20 @@ dev_env_install_runtime_config() {
     return 2
   fi
 
+  DEV_ENV_ROOT="$install_root"
+  export DEV_ENV_ROOT
+
+  # Pull in the node bootstrap helpers from the installed bundle itself.
+  . "$install_root/lib/node-tools.sh"
+  . "$install_root/lib/bun-tools.sh"
+
   dev_env_install_copy_config_dir "$install_root/chezmoi/dot_config/nvim" "$install_root/config/nvim"
   dev_env_install_copy_config_dir "$install_root/chezmoi/dot_config/yazi" "$install_root/config/yazi"
   dev_env_install_copy_config_dir "$install_root/chezmoi/dot_config/zellij" "$install_root/config/zellij"
+
+  dev_env_use_fnm_node || true
+  dev_env_activate_bun
+  dev_env_ensure_bun_tools || true
 }
 
 dev_env_install_archive() {
