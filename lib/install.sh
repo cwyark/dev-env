@@ -45,21 +45,21 @@ dev_env_install_render_template() {
   fi
 
   case "$(uname -s 2>/dev/null || true)" in
-    Darwin) chezmoi_os="darwin" ;;
-    Linux) chezmoi_os="linux" ;;
-    *) chezmoi_os="unknown" ;;
+    Darwin) dev_env_os="darwin" ;;
+    Linux) dev_env_os="linux" ;;
+    *) dev_env_os="unknown" ;;
   esac
 
-  awk -v chezmoi_os="$chezmoi_os" '
-    $0 ~ /^[[:space:]]*\{\{-[[:space:]]*if eq \.chezmoi\.os "darwin"[[:space:]]*\}\}[[:space:]]*$/ {
+  awk -v dev_env_os="$dev_env_os" '
+    $0 ~ /^[[:space:]]*#dev-env-if-darwin[[:space:]]*$/ {
       darwin_only = 1
       next
     }
-    $0 ~ /^[[:space:]]*\{\{-[[:space:]]*end[[:space:]]*\}\}[[:space:]]*$/ {
+    $0 ~ /^[[:space:]]*#dev-env-endif[[:space:]]*$/ {
       darwin_only = 0
       next
     }
-    darwin_only && chezmoi_os != "darwin" {
+    darwin_only && dev_env_os != "darwin" {
       next
     }
     {
@@ -77,17 +77,9 @@ dev_env_install_runtime_config() {
   DEV_ENV_ROOT="$install_root"
   export DEV_ENV_ROOT
 
-  # Pull in the node bootstrap helpers from the installed bundle itself.
-  . "$install_root/lib/node-tools.sh"
-  . "$install_root/lib/bun-tools.sh"
-
-  dev_env_install_copy_config_dir "$install_root/chezmoi/dot_config/nvim" "$install_root/config/nvim"
-  dev_env_install_copy_config_dir "$install_root/chezmoi/dot_config/yazi" "$install_root/config/yazi"
-  dev_env_install_copy_config_dir "$install_root/chezmoi/dot_config/zellij" "$install_root/config/zellij"
-
-  dev_env_use_fnm_node || true
-  dev_env_activate_bun
-  dev_env_ensure_bun_tools || true
+  dev_env_install_copy_config_dir "$install_root/config-source/nvim" "$install_root/config/nvim"
+  dev_env_install_copy_config_dir "$install_root/config-source/yazi" "$install_root/config/yazi"
+  dev_env_install_copy_config_dir "$install_root/config-source/zellij" "$install_root/config/zellij"
 }
 
 dev_env_install_archive() {

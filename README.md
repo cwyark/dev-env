@@ -6,7 +6,7 @@ x86_64/aarch64 hosts.
 The design intentionally separates three concerns:
 
 - **Nix** defines reproducible toolsets and can build per-platform bundles.
-- **chezmoi** manages dotfiles/configuration without owning package installs.
+- **config source** stores portable runtime configuration copied into bundles.
 - **shell entrypoints** activate or deploy the environment over SSH.
 
 The remote-host goal is: no `apt`, no `yum`, no `brew`, no root. A remote host
@@ -28,7 +28,6 @@ The first-class tools are:
 - `zellij`
 - `btop`
 - `eza`
-- `bun`
 - `sshfs`
 - `cmake`
 
@@ -36,16 +35,16 @@ The bundled fish runtime also enables argument completion. It ships native
 completions for the `dev-env` wrapper and uses `carapace` when available for
 broader command argument completions.
 
-`dev-env` activation uses `fnm` and Node `24.16.0` from the fnm-managed
-installation, plus Bun for global tool installs, while keeping the Nix-provided
-Node as a fallback.
+`fnm` is bundled so deployed shells can manage project Node runtimes, but
+`dev-env` does not bundle Node, npm, Bun, or install npm globals during
+activation.
 
 Interactive fish shells also alias `ls` to `eza` and provide `l`, `ll`, `la`,
 and `lt` as short forms for the common list and tree views.
 
 The Neovim audit in [docs/nvim-audit.md](docs/nvim-audit.md) also tracks tools
 your current config expects, including LSPs, DAP adapters, `lazygit`, `fzf`,
-`tree-sitter`, and Node-based tooling.
+`tree-sitter`, and optional Node-based project tooling.
 
 ## Layout
 
@@ -55,15 +54,15 @@ bin/
   dev-ssh          # SSH enter helper for installed remotes
   dev-deploy       # local/SSH bundle deployment helper
   dev-clean        # local/SSH cleanup helper
-chezmoi/
-  ...              # chezmoi source state
+config/
+  ...              # portable runtime config source
 docs/
   architecture.md
   nvim-audit.md
+host-dotfiles/
+  ...              # preserved trusted-host dotfile source
 lib/
   platform.sh      # platform detection helpers
-  node-tools.sh    # fnm/node bootstrap helpers
-  bun-tools.sh     # bun/global package bootstrap helpers
 nix/
   toolsets.nix     # package groups
 scripts/
@@ -73,13 +72,12 @@ flake.nix
 
 ## Local Usage
 
-After installing Nix and chezmoi on your trusted machine:
+After installing Nix on your trusted machine:
 
 ```sh
 bin/dev-env doctor
 bin/dev-env shell
 bin/dev-env zellij dev
-bin/dev-env chezmoi-apply # trusted host dotfiles only
 ```
 
 ## Remote Usage
@@ -138,8 +136,8 @@ bundle path and the `scripts/build-bundle <platform>` command to run.
 `dev-clean` removes only `~/.local/share/dev-env`, and refuses to run unless the
 directory contains the bundle marker file `.dev-env-root`.
 
-`bin/dev-env chezmoi-apply` is for trusted hosts. It applies normal home
-dotfiles and is not part of the disposable remote flow.
+Preserved trusted-host dotfiles live under `host-dotfiles/`. They are source
+material only and are not applied by `dev-env`.
 
 ## Bundle Build
 

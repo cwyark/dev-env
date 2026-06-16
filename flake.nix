@@ -23,14 +23,6 @@
           if builtins.pathExists ./VERSION
           then ''cp -a ${./VERSION} "$out/VERSION"''
           else "";
-        copyNodeVersionToRoot =
-          if builtins.pathExists ./.node-version
-          then "cp -a ${./.node-version} root/.node-version"
-          else "";
-        copyNodeVersionToOut =
-          if builtins.pathExists ./.node-version
-          then ''cp -a ${./.node-version} "$out/.node-version"''
-          else "";
         toolRuntime = pkgs.buildEnv {
           name = "dev-env-runtime";
           paths = toolsets.core ++ toolsets.nvim;
@@ -45,21 +37,19 @@
             mkdir -p \
               "$out/bin" \
               "$out/lib" \
-              "$out/chezmoi" \
+              "$out/config-source" \
               "$out/share/dev-env/etc/fish" \
               "$out/share/dev-env/source"
 
             cp -a ${./bin}/. "$out/bin/"
             cp -a ${./lib}/. "$out/lib/"
-            cp -a ${./chezmoi}/. "$out/chezmoi/"
+            cp -a ${./config}/. "$out/config-source/"
             cp -a ${./runtime/etc/fish}/. "$out/share/dev-env/etc/fish/"
-
-            ${copyNodeVersionToOut}
             cp -a ${./bin}/. "$out/share/dev-env/source/bin/"
             cp -a ${./lib}/. "$out/share/dev-env/source/lib/"
-            cp -a ${./chezmoi}/. "$out/share/dev-env/source/chezmoi/"
+            cp -a ${./config}/. "$out/share/dev-env/source/config/"
+            cp -a ${./host-dotfiles}/. "$out/share/dev-env/source/host-dotfiles/"
             cp -a ${./runtime}/. "$out/share/dev-env/source/runtime/"
-            cp -a ${./.node-version} "$out/share/dev-env/source/.node-version"
 
             ${copyVersionToOut}
 
@@ -70,7 +60,7 @@
         runtime = pkgs.buildEnv {
           name = "dev-env-runtime";
           paths = toolsets.core ++ toolsets.nvim ++ [ devEnvFiles ];
-          pathsToLink = [ "/bin" "/lib" "/libexec" "/share" "/chezmoi" ];
+          pathsToLink = [ "/bin" "/lib" "/libexec" "/share" "/config-source" ];
         };
       in
       {
@@ -91,6 +81,7 @@
               root/bin \
               root/cache \
               root/config \
+              root/config-source \
               root/lib \
               root/libexec \
               root/etc/fish \
@@ -117,16 +108,15 @@
             cp -a ${./bin}/. root/bin/
             cp -a ${./lib}/. root/lib/
             cp -a ${./scripts}/. root/scripts/
-            cp -a ${./chezmoi}/. root/chezmoi/
+            cp -a ${./config}/. root/config-source/
             cp -a ${./runtime/etc/fish}/. root/etc/fish/
-            ${copyNodeVersionToRoot}
 
             cp -a ${./bin}/. root/share/dev-env/source/bin/
             cp -a ${./lib}/. root/share/dev-env/source/lib/
             cp -a ${./scripts}/. root/share/dev-env/source/scripts/
-            cp -a ${./chezmoi}/. root/share/dev-env/source/chezmoi/
+            cp -a ${./config}/. root/share/dev-env/source/config/
+            cp -a ${./host-dotfiles}/. root/share/dev-env/source/host-dotfiles/
             cp -a ${./runtime}/. root/share/dev-env/source/runtime/
-            cp -a ${./.node-version} root/share/dev-env/source/.node-version
 
             ${copyVersionToRoot}
 
@@ -160,12 +150,6 @@
             export DEV_ENV_REPO="$PWD"
             export DEV_ENV_ROOT="''${DEV_ENV_ROOT:-$PWD}"
             export DEV_ENV_HOME="''${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
-
-            . ${./lib/node-tools.sh}
-            . ${./lib/bun-tools.sh}
-            dev_env_use_fnm_node || true
-            dev_env_activate_bun
-            dev_env_ensure_bun_tools || true
           '';
         };
 

@@ -26,6 +26,5 @@ complete -c dev-env -n '__dev_env_needs_command' -a zellij -d 'Start zellij or a
 complete -c dev-env -n '__dev_env_needs_command' -a btop -d 'Start btop in the activated environment'
 complete -c dev-env -n '__dev_env_needs_command' -a nvim -d 'Start neovim in the activated environment'
 complete -c dev-env -n '__dev_env_needs_command' -a yazi -d 'Start yazi in the activated environment'
-complete -c dev-env -n '__dev_env_needs_command' -a chezmoi-apply -d 'Apply chezmoi source from this repo'
 
 complete -c dev-env -n '__fish_seen_subcommand_from nvim yazi' -F

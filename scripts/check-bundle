@@ -33,7 +33,6 @@ mkdir -p "$tmp"
 tar -xzf "$archive" -C "$tmp"
 
 # Mirror the deploy/install path so runtime config regressions are caught.
-# The raw archive intentionally stores source config under chezmoi/.
 . "$tmp/lib/install.sh"
 dev_env_install_runtime_config "$tmp"
 
@@ -73,15 +72,18 @@ require_path config
 require_path config/nvim
 require_path config/yazi
 require_path config/zellij/config.kdl
+require_path config-source/nvim
+require_path config-source/yazi
+require_path config-source/zellij
 require_path lib/platform.sh
 require_path scripts
-require_path chezmoi
 require_path etc/fish/config.fish
 require_path state
 require_path share/dev-env/source/bin
 require_path share/dev-env/source/lib
 require_path share/dev-env/source/scripts
-require_path share/dev-env/source/chezmoi
+require_path share/dev-env/source/config
+require_path share/dev-env/source/host-dotfiles
 require_path share/dev-env/source/runtime
 require_path share/dev-env/reports/nix-store-references.txt
 require_path share/dev-env/reports/file-types.txt
@@ -92,7 +94,6 @@ run_check dev-env-platform "$DEV_ENV_HOME/bin/dev-env" platform
 run_check dev-clean-help "$DEV_ENV_HOME/bin/dev-clean" --help
 run_check fish-version "$DEV_ENV_HOME/bin/fish" --version
 run_check nvim-version "$DEV_ENV_HOME/bin/nvim" --version
-run_check bun-version bun --version
 run_check opencode-version opencode --version
 run_check tree-sitter tree-sitter --version
 run_check git-version "$DEV_ENV_HOME/bin/git" --version

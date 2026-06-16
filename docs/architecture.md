@@ -58,20 +58,25 @@ The `dev-env shell` entrypoint is fish-first and should launch the bundled fish
 runtime with its own config from `etc/fish/config.fish`. The repo no longer
 ships bash or zsh startup files.
 
-### 3. chezmoi source state
+### 3. Portable config source
 
-chezmoi owns dotfiles and templates. It should not be the package manager.
-It is intended for trusted hosts because applying it writes normal home
-dotfiles outside `DEV_ENV_HOME`.
+Portable runtime config lives under `config/`. Bundle installation renders any
+`.tmpl` files with dev-env's small platform-aware renderer, then writes the
+result under the private runtime prefix.
 
-Recommended use:
+Source layout:
 
-```sh
-chezmoi --source ./chezmoi apply
+```text
+config/
+  nvim/
+  yazi/
+  zellij/
+host-dotfiles/
+  config/
 ```
 
-The source tree is intentionally small right now. Import real configs after
-deciding which files should be portable as-is and which need templates.
+`host-dotfiles/` preserves trusted-host dotfile material, but `dev-env` does not
+apply it to `$HOME`. Disposable local and remote installs should stay confined
 
 ### 4. SSH deployment
 
