@@ -23,7 +23,7 @@ dev_env_detect_remote_platform() {
     return 2
   fi
 
-  ssh "$target" 'os=$(uname -s | tr "[:upper:]" "[:lower:]"); arch=$(uname -m); case "$os:$arch" in linux:x86_64|linux:amd64) echo x86_64-linux ;; linux:aarch64|linux:arm64) echo aarch64-linux ;; *) echo unsupported-$os-$arch >&2; exit 1 ;; esac'
+  ssh "$target" 'os=$(uname -s | tr "[:upper:]" "[:lower:]"); arch=$(uname -m); if [ -r /proc/version ] && grep -qi microsoft /proc/version 2>/dev/null; then wsl=wsl-; else wsl=; fi; case "$os:$arch" in linux:x86_64|linux:amd64) echo ${wsl}linux-x86_64 ;; linux:aarch64|linux:arm64) echo ${wsl}linux-arm64 ;; darwin:arm64|darwin:aarch64) echo macos-arm64 ;; darwin:x86_64|darwin:amd64) echo macos-x86_64 ;; *) echo unsupported-$os-$arch >&2; exit 1 ;; esac'
 }
 
 dev_env_remote_has_install() {
@@ -34,10 +34,4 @@ dev_env_remote_has_install() {
 dev_env_sh_quote() {
   value="${1:-}"
   printf "'%s'" "$(printf '%s' "$value" | sed "s/'/'\"'\"'/g")"
-}
-
-dev_env_bundle_path() {
-  repo_root="${1:-}"
-  platform="${2:-}"
-  printf '%s\n' "$repo_root/dist/dev-env-$platform.tar.gz"
 }

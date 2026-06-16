@@ -1,50 +1,20 @@
 # dev-env
 
-Portable terminal development environment for macOS arm64 and remote Linux
-x86_64/aarch64 hosts.
+Personal terminal development environment for macOS, Linux, and WSL hosts.
 
-The design intentionally separates three concerns:
+`dev-env` is no longer a Nix bundle or portable tarball builder. It keeps a
+small isolated runtime under `~/.local/share/dev-env` and uses
+[mise](https://mise.jdx.dev/) to install exact pinned global tools.
 
-- **Nix** defines reproducible toolsets and can build per-platform bundles.
-- **config source** stores portable runtime configuration copied into bundles.
-- **shell entrypoints** activate or deploy the environment over SSH.
+## Design
 
-The remote-host goal is: no `apt`, no `yum`, no `brew`, no root. A remote host
-should only need SSH, Nix, a POSIX shell, and a writable home or temp
-directory.
-
-`bin/dev-env shell` now enters a bundled `fish` shell inside the isolated
-environment. The repo no longer ships bash or zsh startup configs.
-`bin/dev-env zellij dev` will attach to a remote or local `dev` session,
-creating it if needed.
-
-## Essential Tools
-
-The first-class tools are:
-
-- `fish`
-- `neovim`
-- `yazi`
-- `zellij`
-- `btop`
-- `eza`
-- `sshfs`
-- `cmake`
-
-The bundled fish runtime also enables argument completion. It ships native
-completions for the `dev-env` wrapper and uses `carapace` when available for
-broader command argument completions.
-
-`fnm` is bundled so deployed shells can manage project Node runtimes, but
-`dev-env` does not bundle Node, npm, Bun, or install npm globals during
-activation.
-
-Interactive fish shells also alias `ls` to `eza` and provide `l`, `ll`, `la`,
-and `lt` as short forms for the common list and tree views.
-
-The Neovim audit in [docs/nvim-audit.md](docs/nvim-audit.md) also tracks tools
-your current config expects, including LSPs, DAP adapters, `lazygit`, `fzf`,
-`tree-sitter`, and optional Node-based project tooling.
+- `mise` installs global CLI tools from `config/mise/config.toml`.
+- `dev-env` keeps fish, Neovim, Yazi, Zellij, and mise config isolated under
+  `~/.local/share/dev-env/config`.
+- `fnm` is installed by mise and manages Node.
+- `uv` is installed by mise and manages Python/project tooling.
+- Neovim Mason remains responsible for LSPs, formatters, and DAP adapters.
+- Remote deployment bootstraps mise over SSH and runs `dev-env install`.
 
 ## Layout
 
@@ -52,37 +22,39 @@ your current config expects, including LSPs, DAP adapters, `lazygit`, `fzf`,
 bin/
   dev-env          # local command dispatcher
   dev-ssh          # SSH enter helper for installed remotes
-  dev-deploy       # local/SSH bundle deployment helper
+  dev-deploy       # local/SSH deployment helper
   dev-clean        # local/SSH cleanup helper
 config/
-  ...              # portable runtime config source
+  fish/            # isolated fish startup and completions
+  mise/            # exact pinned global tools
+  nvim/            # isolated Neovim config
+  yazi/            # isolated Yazi config
+  zellij/          # isolated Zellij config
 docs/
   architecture.md
   nvim-audit.md
 host-dotfiles/
-  ...              # preserved trusted-host dotfile source
+  ...              # optional host shell snippets
 lib/
-  platform.sh      # platform detection helpers
-nix/
-  toolsets.nix     # package groups
-scripts/
-  build-bundle
-flake.nix
+  platform.sh
+  ssh.sh
+  install.sh
 ```
 
 ## Local Usage
 
-After installing Nix on your trusted machine:
+Install or update the local isolated environment:
 
 ```sh
-bin/dev-env doctor
+bin/dev-deploy
 bin/dev-env shell
 bin/dev-env zellij dev
 ```
 
-## Remote Usage
+`bin/dev-deploy` without an SSH target runs `bin/dev-env install`, which copies
+config to `~/.local/share/dev-env/config` and runs `mise install`.
 
-The intended remote flow is:
+## Remote Usage
 
 ```sh
 bin/dev-deploy user@host
@@ -91,99 +63,48 @@ bin/dev-ssh --session user@host
 bin/dev-clean user@host
 ```
 
-`dev-deploy` detects the target platform, uploads the source tree, builds the
-matching bundle on the remote with Nix, and installs it under:
+Remote deployment expects SSH, a POSIX shell, `tar`, and either `curl` or `wget`.
+It does not require Nix, Docker, root, `apt`, `yum`, or Homebrew.
 
-```text
-~/.local/share/dev-env
-```
-
-The activated remote environment keeps runtime config, cache, and state under
-that same prefix:
+`dev-deploy` overwrites existing files under:
 
 ```text
 ~/.local/share/dev-env/config
-~/.local/share/dev-env/cache
-~/.local/share/dev-env/state
 ```
 
-Temporary files continue to use the host's system temporary directory
-(`TMPDIR`, usually `/tmp`).
+The `mise` bootstrap binary may live at `~/.local/bin/mise`, but tools installed
+by mise are isolated under `~/.local/share/dev-env/share/mise`.
 
-`dev-ssh` does not build, upload, or install bundles. It only connects to an
-already-installed remote and starts:
+## Runtime Prefix
 
 ```text
-~/.local/share/dev-env/bin/dev-env shell
+~/.local/share/dev-env
+  bin/
+  config/
+  cache/
+  share/
+  source/
+  state/
 ```
 
-If you pass `--session`, it will instead start or attach to the remote `dev`
-zellij session. You can also pass a custom session name:
+Activated commands use:
 
 ```sh
-bin/dev-ssh --session work user@host
+DEV_ENV_HOME="$HOME/.local/share/dev-env"
+XDG_CONFIG_HOME="$DEV_ENV_HOME/config"
+XDG_DATA_HOME="$DEV_ENV_HOME/share"
+XDG_CACHE_HOME="$DEV_ENV_HOME/cache"
+XDG_STATE_HOME="$DEV_ENV_HOME/state"
+MISE_GLOBAL_CONFIG_FILE="$DEV_ENV_HOME/config/mise/config.toml"
+MISE_DATA_DIR="$DEV_ENV_HOME/share/mise"
+MISE_CACHE_DIR="$DEV_ENV_HOME/cache/mise"
+MISE_STATE_DIR="$DEV_ENV_HOME/state/mise"
 ```
 
-To install the matching bundle on the local machine, omit the SSH target:
+## Updating
 
 ```sh
-bin/dev-deploy
+bin/dev-env update
 ```
 
-If the matching bundle is not present locally, `dev-deploy` exits with the
-bundle path and the `scripts/build-bundle <platform>` command to run.
-
-`dev-clean` removes only `~/.local/share/dev-env`, and refuses to run unless the
-directory contains the bundle marker file `.dev-env-root`.
-
-Preserved trusted-host dotfiles live under `host-dotfiles/`. They are source
-material only and are not applied by `dev-env`.
-
-## Bundle Build
-
-Use `scripts/build-bundle` as the single bundle build entry point:
-
-```sh
-scripts/build-bundle mac-m1
-scripts/build-bundle linux-x86_64
-scripts/build-bundle linux-arm64
-```
-
-`mac-m1` builds the `aarch64-darwin` bundle locally with Nix. The Linux targets
-build inside Apple's `container` tool and write the matching artifact to `dist/`.
-
-Before building Linux bundles on macOS, make sure `container` is installed and
-its builder is available. For `linux-x86_64` on Apple Silicon, enable Rosetta:
-
-```sh
-container builder start
-```
-
-The Linux build path is a thin shell around:
-
-```sh
-container build \
-  --platform linux/amd64 \
-  --build-arg BUNDLE_SYSTEM=x86_64-linux \
-  --target bundle \
-  --output type=local,dest=dist \
-  -f docker/Dockerfile.bundle-builder \
-  .
-```
-
-The resulting artifacts are written to:
-
-```text
-dist/dev-env-aarch64-darwin.tar.gz
-dist/dev-env-x86_64-linux.tar.gz
-dist/dev-env-aarch64-linux.tar.gz
-```
-
-The builder image is based on Alpine and installs Nix with `apk`. On macOS the
-build uses Colima's `nerdctl` wrapper rather than the Docker socket path.
-
-## Current State
-
-This is a scaffold. It does not yet contain prebuilt binary bundles, and Nix was
-not available in the current shell when the scaffold was created, so the flake
-still needs evaluation on a Nix-enabled machine.
+This runs `mise upgrade`, then `mise install`, then reshims tools when supported.

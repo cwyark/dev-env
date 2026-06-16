@@ -2,23 +2,44 @@
 
 set -eu
 
-SELF_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
-REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
+SELF_DIR="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)"
+REPO_ROOT="$(CDPATH='' cd -- "$SELF_DIR/.." && pwd)"
+export PATH="$HOME/.local/share/dev-env/bin:$HOME/.local/bin:$PATH"
 
 # shellcheck source=../lib/platform.sh
 . "$REPO_ROOT/lib/platform.sh"
 # shellcheck source=../lib/ssh.sh
 . "$REPO_ROOT/lib/ssh.sh"
-# shellcheck source=../lib/install.sh
-. "$REPO_ROOT/lib/install.sh"
 
 usage() {
   cat <<'EOF'
 Usage: dev-deploy [ssh-target]
 
-Detect the target platform and install the matching dev-env bundle.
-With no ssh-target, install the matching bundle on the local machine.
+Install or update the mise-managed dev-env runtime.
+With no ssh-target, install on the local machine.
 EOF
+}
+
+install_mise_local() {
+  if command -v mise >/dev/null 2>&1; then
+    return 0
+  fi
+
+  mkdir -p "$HOME/.local/bin"
+  if command -v curl >/dev/null 2>&1; then
+    curl https://mise.run | sh
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO- https://mise.run | sh
+  else
+    printf 'dev-deploy: curl or wget is required to install mise\n' >&2
+    return 1
+  fi
+
+  if ! command -v mise >/dev/null 2>&1; then
+    printf 'dev-deploy: mise install completed but mise is not on PATH\n' >&2
+    printf 'dev-deploy: expected mise at %s\n' "$HOME/.local/bin/mise" >&2
+    return 1
+  fi
 }
 
 target=""
@@ -45,70 +66,91 @@ while [ "$#" -gt 0 ]; do
   esac
 done
 
-if [ -n "$target" ]; then
-  platform="$(dev_env_detect_remote_platform "$target")"
-else
-  platform="$(dev_env_platform)"
-fi
-
 if [ -z "$target" ]; then
-  bundle="$(dev_env_bundle_path "$REPO_ROOT" "$platform")"
-  if [ ! -f "$bundle" ]; then
-    printf 'dev-deploy: missing bundle: %s\n' "$bundle" >&2
-    printf 'dev-deploy: build it with: scripts/build-bundle %s\n' "$platform" >&2
-    exit 1
-  fi
-  dev_env_install_archive "$bundle"
+  install_mise_local
+  "$REPO_ROOT/bin/dev-env" install
   exit $?
 fi
 
+platform="$(dev_env_detect_remote_platform "$target")"
+case "$platform" in
+  linux-*|wsl-linux-*|macos-*) ;;
+  *)
+    printf 'dev-deploy: unsupported remote platform: %s\n' "$platform" >&2
+    exit 1
+    ;;
+esac
+
+archive="$(mktemp "${TMPDIR:-/tmp}/dev-env-source.XXXXXX.tar.gz")"
 remote_tmp=""
-source_archive=""
 cleanup() {
+  rm -f "$archive"
   if [ -n "${remote_tmp:-}" ]; then
     ssh "$target" "rm -rf $(dev_env_sh_quote "$remote_tmp")" >/dev/null 2>&1 || true
-  fi
-  if [ -n "${source_archive:-}" ] && [ -f "$source_archive" ]; then
-    rm -f "$source_archive"
   fi
 }
 trap cleanup EXIT HUP INT TERM
 
-remote_tmp="$(
-  ssh "$target" 'tmp="${TMPDIR:-/tmp}"; if command -v mktemp >/dev/null 2>&1; then mktemp -d "$tmp/dev-env-upload.XXXXXX"; else d="$tmp/dev-env-upload.$$"; mkdir -p "$d"; echo "$d"; fi'
-)"
-
-source_archive="$(mktemp "${TMPDIR:-/tmp}/dev-env-source.XXXXXX.tar.gz")"
 (
   cd "$REPO_ROOT"
   tar \
-    --exclude='./.cache' \
-    --exclude='./.cache/*' \
-    --exclude='./.git' \
-    --exclude='./.git/*' \
-    --exclude='./dist' \
-    --exclude='./dist/*' \
-    --exclude='./result' \
-    --exclude='./result-*' \
-    -czf "$source_archive" .
+    --exclude .git \
+    --exclude .cache \
+    --exclude dist \
+    --exclude result \
+    --exclude 'result-*' \
+    -czf "$archive" .
 )
 
-ssh "$target" "mkdir -p $(dev_env_sh_quote "$remote_tmp/src") $(dev_env_sh_quote "$remote_tmp/lib")"
-scp "$source_archive" "$target:$remote_tmp/dev-env-source.tar.gz"
-scp "$REPO_ROOT/lib/install.sh" "$target:$remote_tmp/lib/install.sh"
-ssh "$target" sh -s -- "$remote_tmp/src" "$remote_tmp/dev-env-source.tar.gz" "$remote_tmp/lib/install.sh" "$platform" <<'EOF'
+remote_tmp="$(ssh "$target" 'tmp="${TMPDIR:-/tmp}"; if command -v mktemp >/dev/null 2>&1; then mktemp -d "$tmp/dev-env-upload.XXXXXX"; else d="$tmp/dev-env-upload.$$"; mkdir -p "$d"; echo "$d"; fi')"
+scp "$archive" "$target:$remote_tmp/source.tar.gz"
+
+ssh "$target" sh -s <<'EOF'
 set -eu
 
-src_dir="$1"
-src_archive="$2"
-install_script="$3"
-platform="$4"
+DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
+export DEV_ENV_HOME
+export MISE_GLOBAL_CONFIG_FILE="$DEV_ENV_HOME/config/mise/config.toml"
+export MISE_DATA_DIR="$DEV_ENV_HOME/share/mise"
+export MISE_CACHE_DIR="$DEV_ENV_HOME/cache/mise"
+export MISE_STATE_DIR="$DEV_ENV_HOME/state/mise"
+export PATH="$DEV_ENV_HOME/bin:$HOME/.local/bin:$PATH"
 
-mkdir -p "$src_dir"
-tar -xzf "$src_archive" -C "$src_dir"
-cd "$src_dir"
+if ! command -v mise >/dev/null 2>&1; then
+  mkdir -p "$HOME/.local/bin"
+  if command -v curl >/dev/null 2>&1; then
+    curl https://mise.run | sh
+  elif command -v wget >/dev/null 2>&1; then
+    wget -qO- https://mise.run | sh
+  else
+    printf 'dev-deploy: remote requires curl or wget to install mise\n' >&2
+    exit 1
+  fi
+fi
 
-nix --extra-experimental-features 'nix-command flakes' build ".#packages.$platform.bundle"
-. "$install_script"
-dev_env_install_archive "$src_dir/result/dev-env-$platform.tar.gz"
+if ! command -v mise >/dev/null 2>&1; then
+  printf 'dev-deploy: mise install completed but mise is not on PATH\n' >&2
+  exit 1
+fi
+EOF
+
+ssh "$target" sh -s -- "$remote_tmp" <<'EOF'
+set -eu
+
+remote_tmp="$1"
+DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
+export DEV_ENV_HOME
+export MISE_GLOBAL_CONFIG_FILE="$DEV_ENV_HOME/config/mise/config.toml"
+export MISE_DATA_DIR="$DEV_ENV_HOME/share/mise"
+export MISE_CACHE_DIR="$DEV_ENV_HOME/cache/mise"
+export MISE_STATE_DIR="$DEV_ENV_HOME/state/mise"
+export PATH="$DEV_ENV_HOME/bin:$HOME/.local/bin:$PATH"
+
+mkdir -p "$DEV_ENV_HOME/source"
+rm -rf "$DEV_ENV_HOME/source"
+mkdir -p "$DEV_ENV_HOME/source"
+tar -xzf "$remote_tmp/source.tar.gz" -C "$DEV_ENV_HOME/source"
+
+"$DEV_ENV_HOME/source/bin/dev-env" install
+"$DEV_ENV_HOME/bin/dev-env" doctor
 EOF

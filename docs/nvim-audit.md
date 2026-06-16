@@ -1,6 +1,6 @@
 # Neovim Tool Audit
 
-Derived from reading `~/.config/nvim` on 2026-05-16.
+This config is now designed for the mise-based `dev-env` runtime.
 
 ## Essential Binaries
 
@@ -8,14 +8,21 @@ Derived from reading `~/.config/nvim` on 2026-05-16.
 - `yazi`
 - `zellij`
 
+These are installed by mise from the isolated config at:
+
+```text
+~/.local/share/dev-env/config/mise/config.toml
+```
+
 ## Referenced By Plugins Or Config
 
 - `lazygit`: `toggleterm` opens `lazygit`
 - `fzf`: `fzf.vim` checks for the `fzf` executable
-- `fnm`: bundled for project-managed Node runtimes
-- `opencode`: provided by the dev-env Nix toolset
-- `tree-sitter`: provided by the dev-env Nix toolset
-- `cargo`: required by the SnipRun config on macOS
+- `fnm`: installed by mise and used for project-managed Node runtimes
+- `uv`: installed by mise and used for Python/project tooling
+- `opencode`: install through mise if needed globally
+- `tree-sitter`: install through mise if parser compilation needs the CLI
+- `cargo`: required by the SnipRun config on macOS when running Rust snippets
 
 ## LSP Servers
 
@@ -62,26 +69,14 @@ Requested parsers:
 - `toml`
 - `regex`
 
-## Likely Languages
-
-The current config and repo shape point to these languages as your regular set:
-
-- Lua for Neovim config
-- Python
-- Rust
-- C and C++
-- CMake
-- JavaScript and TypeScript
-- Shell scripts
-- TOML
-
 ## Portability Notes
 
-- Mason is convenient, but it downloads and installs tools on the target host.
-  For maximum portability, prefer binaries provided by the dev-env tool bundle.
-- `tree-sitter` parser compilation can require a compiler. Remote profiles
-  should either ship parsers or accept a reduced parser set.
-- Node-based project tools should use the bundled `fnm` in dev-env shells, not
-  the remote system Node.
-- DAP support is the least portable layer and should be treated as optional
-  until the core editor experience is stable.
+- Mason downloads and installs editor tooling on the target host.
+- Mason state is isolated because `XDG_DATA_HOME` points at
+  `~/.local/share/dev-env/share`.
+- `tree-sitter` parser compilation can require a compiler. Treat parser build
+  failures as editor capability issues, not deploy failures.
+- Node-based project tools should use `fnm` inside dev-env shells, not the remote
+  system Node.
+- DAP support is the least portable layer and should remain optional until the
+  core editor experience is stable.

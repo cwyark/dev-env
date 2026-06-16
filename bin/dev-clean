@@ -6,8 +6,8 @@ usage() {
   cat <<'EOF'
 Usage: dev-clean [ssh-target]
 
-Remove an installed dev-env tree from ~/.local/share/dev-env.
-With no ssh-target, clean the local machine.
+Remove the dev-env tree from ~/.local/share/dev-env.
+This removes dev-env's isolated mise installs, but not ~/.local/bin/mise.
 EOF
 }
 

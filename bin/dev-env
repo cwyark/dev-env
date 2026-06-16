@@ -4,7 +4,7 @@ set -eu
 
 SELF="$0"
 while [ -L "$SELF" ]; do
-  dir="$(CDPATH= cd -- "$(dirname -- "$SELF")" && pwd)"
+  dir="$(CDPATH='' cd -- "$(dirname -- "$SELF")" && pwd)"
   link="$(readlink "$SELF")"
   case "$link" in
     /*) SELF="$link" ;;
@@ -12,36 +12,38 @@ while [ -L "$SELF" ]; do
   esac
 done
 
-SELF_DIR="$(CDPATH= cd -- "$(dirname -- "$SELF")" && pwd)"
-REPO_ROOT="$(CDPATH= cd -- "$SELF_DIR/.." && pwd)"
+SELF_DIR="$(CDPATH='' cd -- "$(dirname -- "$SELF")" && pwd)"
+REPO_ROOT="$(CDPATH='' cd -- "$SELF_DIR/.." && pwd)"
 
 # shellcheck source=../lib/platform.sh
 . "$REPO_ROOT/lib/platform.sh"
 # shellcheck source=../lib/ssh.sh
 . "$REPO_ROOT/lib/ssh.sh"
+# shellcheck source=../lib/install.sh
+. "$REPO_ROOT/lib/install.sh"
 
 DEV_ENV_HOME="${DEV_ENV_HOME:-$HOME/.local/share/dev-env}"
 export DEV_ENV_HOME
-DEV_ENV_ROOT="${DEV_ENV_ROOT:-$REPO_ROOT}"
-export DEV_ENV_ROOT
-if [ -d "$DEV_ENV_ROOT/etc" ]; then
-  DEV_ENV_ETC="${DEV_ENV_ETC:-$DEV_ENV_ROOT/etc}"
-else
-  DEV_ENV_ETC="${DEV_ENV_ETC:-$DEV_ENV_ROOT/share/dev-env/etc}"
-fi
-export DEV_ENV_ETC
-export PATH="$DEV_ENV_ROOT/bin:$DEV_ENV_HOME/bin:$PATH"
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$DEV_ENV_HOME/config}"
-export XDG_DATA_HOME="${XDG_DATA_HOME:-$DEV_ENV_HOME/share}"
-export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$DEV_ENV_HOME/cache}"
-export XDG_STATE_HOME="${XDG_STATE_HOME:-$DEV_ENV_HOME/state}"
+export XDG_CONFIG_HOME="$DEV_ENV_HOME/config"
+export XDG_DATA_HOME="$DEV_ENV_HOME/share"
+export XDG_CACHE_HOME="$DEV_ENV_HOME/cache"
+export XDG_STATE_HOME="$DEV_ENV_HOME/state"
+export MISE_GLOBAL_CONFIG_FILE="$DEV_ENV_HOME/config/mise/config.toml"
+export MISE_DATA_DIR="$DEV_ENV_HOME/share/mise"
+export MISE_CACHE_DIR="$DEV_ENV_HOME/cache/mise"
+export MISE_STATE_DIR="$DEV_ENV_HOME/state/mise"
+export PATH="$DEV_ENV_HOME/bin:$HOME/.local/bin:$MISE_DATA_DIR/shims:$PATH"
 
 dev_env_activate() {
   mkdir -p \
+    "$DEV_ENV_HOME" \
     "$XDG_CONFIG_HOME" \
     "$XDG_DATA_HOME" \
     "$XDG_CACHE_HOME" \
-    "$XDG_STATE_HOME"
+    "$XDG_STATE_HOME" \
+    "$MISE_DATA_DIR" \
+    "$MISE_CACHE_DIR" \
+    "$MISE_STATE_DIR"
 }
 
 usage() {
@@ -50,21 +52,82 @@ Usage: dev-env <command>
 
 Commands:
   version        Print dev-env version
+  install        Install isolated config and run mise install
+  update         Run mise upgrade and reinstall pinned tools
   doctor         Check expected tools
   platform       Print detected platform
   shell          Start the isolated fish shell
-  zellij         Start zellij in the activated environment
-  zellij [session]
-                 Attach to a zellij session, creating it if needed
+  zellij [name]  Attach to a zellij session, creating it if needed
   btop           Start btop in the activated environment
   nvim [args...] Start neovim in the activated environment
   yazi [args...] Start yazi in the activated environment
 EOF
 }
 
+require_mise() {
+  if ! command -v mise >/dev/null 2>&1; then
+    printf 'dev-env: mise is not installed or not on PATH\n' >&2
+    printf 'dev-env: run dev-deploy, or install mise into ~/.local/bin\n' >&2
+    return 1
+  fi
+}
+
+run_mise_install() {
+  require_mise
+  mise install -y
+  mise reshim >/dev/null 2>&1 || true
+  generate_fish_completions
+}
+
+write_fish_completion() {
+  name="${1:-}"
+  shift || return 2
+  if [ -z "$name" ]; then
+    return 2
+  fi
+
+  completion_dir="$DEV_ENV_HOME/config/fish/completions"
+  mkdir -p "$completion_dir"
+  tmp="$completion_dir/.$name.fish.tmp"
+
+  if "$@" > "$tmp"; then
+    if command -v fish >/dev/null 2>&1 && ! fish -n "$tmp" >/dev/null 2>&1; then
+      rm -f "$tmp"
+      return 0
+    fi
+    mv "$tmp" "$completion_dir/$name.fish"
+  else
+    rm -f "$tmp"
+  fi
+}
+
+generate_fish_completions() {
+  write_fish_completion mise mise completion fish
+
+  if command -v fnm >/dev/null 2>&1; then
+    write_fish_completion fnm fnm completions --shell fish
+  fi
+  if command -v opencode >/dev/null 2>&1; then
+    write_fish_completion opencode opencode completion fish
+  fi
+  if command -v uv >/dev/null 2>&1; then
+    write_fish_completion uv uv generate-shell-completion fish
+  fi
+  if command -v zellij >/dev/null 2>&1; then
+    write_fish_completion zellij zellij setup --generate-completion fish
+  fi
+}
+
 doctor() {
   missing=0
-  for cmd in fish nvim yazi zellij btop git rg fd fzf fnm opencode tree-sitter lazygit eza uv carapace zig zls; do
+  if command -v mise >/dev/null 2>&1; then
+    printf 'ok      mise -> %s\n' "$(command -v mise)"
+  else
+    printf 'missing mise\n'
+    missing=1
+  fi
+
+  for cmd in fish nvim yazi zellij btop git rg fd fzf fnm uv lazygit eza jq carapace; do
     if command -v "$cmd" >/dev/null 2>&1; then
       printf 'ok      %s -> %s\n' "$cmd" "$(command -v "$cmd")"
     else
@@ -72,6 +135,10 @@ doctor() {
       missing=1
     fi
   done
+
+  if command -v mise >/dev/null 2>&1; then
+    mise doctor || missing=1
+  fi
   return "$missing"
 }
 
@@ -103,6 +170,19 @@ case "$cmd" in
   version|--version|-V)
     version
     ;;
+  install)
+    install_source="$REPO_ROOT"
+    if [ "$REPO_ROOT" = "$DEV_ENV_HOME" ] && [ -d "$DEV_ENV_HOME/source" ]; then
+      install_source="$DEV_ENV_HOME/source"
+    fi
+    dev_env_install_source "$install_source"
+    run_mise_install
+    ;;
+  update)
+    require_mise
+    mise upgrade -y
+    run_mise_install
+    ;;
   doctor)
     doctor
     ;;
@@ -110,20 +190,14 @@ case "$cmd" in
     dev_env_platform
     ;;
   shell)
-    cd "${DEV_ENV_WORKDIR:-$PWD}"
-    shell="${DEV_ENV_FISH:-}"
-    if [ -z "$shell" ]; then
-      shell="$(command -v fish 2>/dev/null || true)"
-    fi
-    if [ -n "$shell" ] && [ ! -x "$shell" ]; then
-      shell=""
-    fi
-    if [ -z "$shell" ]; then
+    require_mise
+    shell="$(mise which fish 2>/dev/null || command -v fish 2>/dev/null || true)"
+    if [ -z "$shell" ] || [ ! -x "$shell" ]; then
       printf 'dev-env: no usable fish shell found\n' >&2
       exit 1
     fi
     export SHELL="$shell"
-    export FISH_INIT_SCRIPT="$DEV_ENV_ETC/fish/config.fish"
+    export FISH_INIT_SCRIPT="$DEV_ENV_HOME/config/fish/config.fish"
     if [ "${DEV_ENV_QUIET:-0}" != "1" ]; then
       printf 'dev-env: entered fish shell (%s)\n' "$(dev_env_platform)"
     fi
@@ -143,24 +217,19 @@ case "$cmd" in
       exit 2
     fi
     session="${1:-}"
+    require_mise
     if [ -z "$session" ]; then
       TERM=xterm-256color exec zellij
     fi
     dev_env_validate_session_name "$session"
-    shell="${DEV_ENV_FISH:-}"
-    if [ -z "$shell" ]; then
-      shell="$(command -v fish 2>/dev/null || true)"
-    fi
-    if [ -n "$shell" ] && [ ! -x "$shell" ]; then
-      shell=""
-    fi
-    if [ -z "$shell" ]; then
+    shell="$(mise which fish 2>/dev/null || command -v fish 2>/dev/null || true)"
+    if [ -z "$shell" ] || [ ! -x "$shell" ]; then
       printf 'dev-env: no usable fish shell found\n' >&2
       exit 1
     fi
     export SHELL="$shell"
-    export FISH_INIT_SCRIPT="$DEV_ENV_ETC/fish/config.fish"
-    TERM=xterm-256color exec "$shell" --login --no-config -C "source \$FISH_INIT_SCRIPT; if zellij attach \"$session\"; else zellij attach --create-background \"$session\" >/dev/null 2>&1; exec zellij attach \"$session\"; end"
+    export FISH_INIT_SCRIPT="$DEV_ENV_HOME/config/fish/config.fish"
+    TERM=xterm-256color exec "$shell" --login --no-config -C "source \$FISH_INIT_SCRIPT; if zellij attach \"$session\"; else; zellij attach --create-background \"$session\" >/dev/null 2>&1; exec zellij attach \"$session\"; end"
     ;;
   btop)
     exec btop
