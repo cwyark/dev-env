@@ -6,7 +6,7 @@
 - Avoid root and distro package managers on remote Linux hosts where possible.
 - Support macOS, Linux x86_64/aarch64, and WSL through the same scripts.
 - Use mise for exact pinned global tools instead of Nix closures or tarballs.
-- Keep Neovim, Yazi, Zellij, and fish config portable and disposable.
+- Keep Neovim, opencode, Yazi, Zellij, and fish config portable and disposable.
 
 ## Layers
 
@@ -114,7 +114,7 @@ for this environment. It intentionally does not remove:
 
 ## Tool Ownership
 
-- `mise`: fish, Neovim, Zellij, Yazi, CLI tools, `fnm`, and `uv`
+- `mise`: fish, Neovim, Zellij, Yazi, CMake, CLI tools, `fnm`, and `uv`
 - `fnm`: Node runtimes
 - `uv`: Python/project tooling
 - Mason: Neovim LSPs, formatters, and DAP adapters

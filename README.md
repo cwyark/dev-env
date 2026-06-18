@@ -9,7 +9,7 @@ small isolated runtime under `~/.local/share/dev-env` and uses
 ## Design
 
 - `mise` installs global CLI tools from `config/mise/config.toml`.
-- `dev-env` keeps fish, Neovim, Yazi, Zellij, and mise config isolated under
+- `dev-env` keeps fish, Neovim, opencode, Yazi, Zellij, and mise config isolated under
   `~/.local/share/dev-env/config`.
 - `fnm` is installed by mise and manages Node.
 - `uv` is installed by mise and manages Python/project tooling.
@@ -28,6 +28,7 @@ config/
   fish/            # isolated fish startup and completions
   mise/            # exact pinned global tools
   nvim/            # isolated Neovim config
+  opencode/        # isolated opencode agents and config
   yazi/            # isolated Yazi config
   zellij/          # isolated Zellij config
 docs/

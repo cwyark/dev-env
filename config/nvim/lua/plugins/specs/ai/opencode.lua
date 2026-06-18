@@ -2,7 +2,7 @@ vim.pack.add({
   {
     src = "https://github.com/nickjvandyke/opencode.nvim",
     name = "opencode.nvim",
-    version = "v1.17.0"
+    version = "v0.13.2"
   }
 })
 

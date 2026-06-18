@@ -7,6 +7,7 @@ This config is now designed for the mise-based `dev-env` runtime.
 - `nvim`
 - `yazi`
 - `zellij`
+- `cmake`
 
 These are installed by mise from the isolated config at:
 
@@ -23,6 +24,7 @@ These are installed by mise from the isolated config at:
 - `opencode`: install through mise if needed globally
 - `tree-sitter`: install through mise if parser compilation needs the CLI
 - `cargo`: required by the SnipRun config on macOS when running Rust snippets
+- `cmake`: used for CMake-based projects alongside `neocmake`
 
 ## LSP Servers
 

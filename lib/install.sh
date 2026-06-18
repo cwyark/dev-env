@@ -80,6 +80,7 @@ dev_env_install_runtime_config() {
   dev_env_install_copy_config_dir "$source_root/config/fish" "$install_root/config/fish"
   dev_env_install_copy_config_dir "$source_root/config/mise" "$install_root/config/mise"
   dev_env_install_copy_config_dir "$source_root/config/nvim" "$install_root/config/nvim"
+  dev_env_install_copy_config_dir "$source_root/config/opencode" "$install_root/config/opencode"
   dev_env_install_copy_config_dir "$source_root/config/yazi" "$install_root/config/yazi"
   dev_env_install_copy_config_dir "$source_root/config/zellij" "$install_root/config/zellij"
 }
