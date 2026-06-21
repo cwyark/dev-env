@@ -9,21 +9,33 @@ layout {
         }
     }
 
-    tab name="dev-env" cwd="~/" focus=true {
-        pane
+    tab name="dev-env" cwd="~/project/dev-env" focus=true {
+        pane command="nvim"
     }
 
     tab name="btop" cwd="~/" {
         pane command="btop"
     }
 
-    tab name="leetcode" cwd="~/" {
+    tab name="beetcode" cwd="~/" {
         pane command="nvim" {
             args "leetcode"
         }
     }
 
-    tab name="Obsidian" cwd="~/SynologyDrive/Notes/Obsidian/cwyark" {
+    tab name="obsidian" cwd="~/CloudDrive/PersonalDrive/Notes/Obsidian/cwyark/" {
         pane command="nvim"
+    }
+
+    tab name="rclone" cwd="~/" {
+        pane name="cdevpc" command="rclone" {
+            args "mount" ":sftp,host=cdevpc,user=chester,port=22:" "/Users/cwyark/CloudDrive/cdevpc"
+        }
+        pane name="jetson-orin" command="rclone" {
+            args "mount" ":sftp,host=jetson-orin,user=memryx,port=22:" "/Users/cwyark/CloudDrive/jetson-orin"
+        }
+        pane name="orangepi5" command="rclone" {
+            args "mount" ":sftp,host=orangepi5,user=orangepi,port=22:" "/Users/cwyark/CloudDrive/orangepi5"
+        }
     }
 }
