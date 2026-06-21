@@ -4,29 +4,14 @@ run  = "cd ~/projects"
 desc = "Go to my projects"
 
 [[mgr.prepend_keymap]]
-on   = [ "g", "d", "n" ]
-run  = "cd ~/SynologyDrive/Notes/Obsidian/cwyark"
-desc = "Go to my notes"
-
-[[mgr.prepend_keymap]]
-on   = [ "g", "d", "s" ]
-run  = "cd ~/SynologyDrive/"
-desc = "Go to my drive"
+on   = [ "g", "d" ]
+run  = "cd ~/CloudDrive"
+desc = "Go to my cloud drive"
 
 [[mgr.prepend_keymap]]
 on   = [ "g", "D" ]
 run  = "cd ~/Downloads"
 desc = "Go to ~/Downloads"
-
-[[mgr.prepend_keymap]]
-on   = [ "g", "s", "1" ]
-run  = "cd sftp://cdevpc"
-desc = "Go to cdevpc"
-
-[[mgr.prepend_keymap]]
-on   = [ "g", "s", "2" ]
-run  = "cd sftp://cdevpc-tailscale"
-desc = "Go to cdevpc-tailscale"
 
 [[mgr.prepend_keymap]]
 on   = [ "C", "a", "a" ]
