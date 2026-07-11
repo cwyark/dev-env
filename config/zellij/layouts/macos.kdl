@@ -28,17 +28,17 @@ layout {
     }
 
     tab name="rclone" cwd="~/" {
-        pane name="cdevpc" command="dev-sshfs" {
-            args "chester@cdevpc:/home/chester" "/Users/cwyark/CloudDrive/cdevpc" "-o" "kernel_cache" "-o" "auto_cache"
+        pane name="cdevpc" command="rclone" {
+            args "mount" "cdevpc:/home/chester" "CloudDrive/cdevpc" "-o" "kernel_cache" "-o" "auto_cache" "--config" ".config/rclone/rclone.conf"
         }
-        pane name="jetson-orin" command="dev-sshfs" {
-            args "memryx@jetson-orin:/home/memryx" "/Users/cwyark/CloudDrive/jetson-orin" "-o" "kernel_cache" "-o" "auto_cache"
+        pane name="jetson-orin" command="rclone" {
+            args "mount" "jetson-orin:/home/memryx" "CloudDrive/jetson-orin" "-o" "kernel_cache" "-o" "auto_cache" "--config" ".config/rclone/rclone.conf"
         }
-        pane name="orangepi5" command="dev-sshfs" {
-            args "orangepi@orangepi5:/home/orangepi" "/Users/cwyark/CloudDrive/orangepi5" "-o" "kernel_cache" "-o" "auto_cache"
+        pane name="orangepi5" command="rclone" {
+            args "mount" "orangepi5:/home/orangepi" "CloudDrive/orangepi5" "-o" "kernel_cache" "-o" "auto_cache" "--config" ".config/rclone/rclone.conf"
         }
         pane name="cwnas" command="rclone" {
-          args "mount", "cwnas:/home/Drive/" "~/CloudDrive/cwnas/"
+            args "mount" "cwnas:/home/Drive" "CloudDrive/cwnas" "--config" ".config/rclone/rclone.conf"
         }
     }
 }
