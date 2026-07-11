@@ -1,0 +1,62 @@
+#!/usr/bin/env sh
+
+set -eu
+
+usage() {
+  cat <<'EOF'
+Usage: dev-sshfs <remote:path> <mountpoint> [sshfs-options...]
+
+Mount an sshfs target, reusing healthy existing mounts and clearing stale ones.
+EOF
+}
+
+remote="${1:-}"
+mountpoint="${2:-}"
+if [ -z "$remote" ] || [ -z "$mountpoint" ] || [ "$remote" = "-h" ] || [ "$remote" = "--help" ]; then
+  usage
+  exit 2
+fi
+shift 2
+
+is_mounted() {
+  mount | awk -v mountpoint="$mountpoint" 'index($0, " on " mountpoint " (") { found = 1 } END { exit found ? 0 : 1 }'
+}
+
+is_healthy_mount() {
+  df -k "$mountpoint" 2>/dev/null | awk 'NR == 2 { exit ($2 > 0 ? 0 : 1) } END { if (NR < 2) exit 1 }'
+}
+
+unmount_stale() {
+  if umount "$mountpoint" 2>/dev/null; then
+    return 0
+  fi
+
+  if command -v diskutil >/dev/null 2>&1; then
+    diskutil unmount force "$mountpoint" >/dev/null 2>&1 && return 0
+  fi
+
+  return 1
+}
+
+mkdir -p "$mountpoint"
+
+if is_mounted; then
+  if is_healthy_mount; then
+    printf 'dev-sshfs: already mounted and healthy: %s\n' "$mountpoint"
+    while :; do
+      sleep 3600
+    done
+  fi
+
+  printf 'dev-sshfs: clearing stale mount: %s\n' "$mountpoint" >&2
+  if ! unmount_stale; then
+    printf 'dev-sshfs: failed to unmount stale mount: %s\n' "$mountpoint" >&2
+    exit 1
+  fi
+fi
+
+exec sshfs "$remote" "$mountpoint" -f \
+  -o reconnect \
+  -o ServerAliveInterval=15 \
+  -o ServerAliveCountMax=3 \
+  "$@"

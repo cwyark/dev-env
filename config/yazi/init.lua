@@ -1,1 +1,1 @@
-require("sshfs"):setup()
+require("bookmarks"):setup({})
